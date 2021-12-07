@@ -4,7 +4,7 @@ import { Drawer as MuiDrawer, List, ListItem, ListItemIcon, ListItemText, Divide
 import InboxIcon from '@mui/icons-material/MoveToInbox'
 import MailIcon from '@mui/icons-material/Mail'
 import AudiotrackIcon from '@mui/icons-material/Audiotrack'
-import TwitterIcon from '@mui/icons-material/Twitter';
+import TwitterIcon from '@mui/icons-material/Twitter'
 
 const drawerWidth = 240
 

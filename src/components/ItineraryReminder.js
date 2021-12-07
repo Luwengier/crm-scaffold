@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Fab, Badge, Popover, Typography, Button, Card, CardActions, CardContent, CardMedia } from '@mui/material'
 import TextSnippetIcon from '@mui/icons-material/TextSnippet'
+import MyCalendarPicker from './MyCalendarPicker'
 
 export default function ItineraryReminder() {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -43,6 +44,8 @@ export default function ItineraryReminder() {
           width: 360,
         }}
       >
+        <MyCalendarPicker />
+
         <Card sx={{ maxWidth: 345, mb: '0.75rem', }}>
           <CardMedia
             component="img"
