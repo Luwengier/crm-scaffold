@@ -1,6 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
-import { Drawer as MuiDrawer, List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material'
+import { Drawer as MuiDrawer, List, ListItemButton, ListItemIcon, ListItemText, Divider } from '@mui/material'
 import InboxIcon from '@mui/icons-material/MoveToInbox'
 import MailIcon from '@mui/icons-material/Mail'
 import AudiotrackIcon from '@mui/icons-material/Audiotrack'
@@ -46,10 +46,13 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     '& .MuiListItemIcon-root': {
       minWidth: 0,
     },
-    '& .MuiButtonBase-root:hover': {
+    '& .MuiListItemButton-root:hover': {
       backgroundColor: 'rgb(182 255 235 / 15%)',
     },
-    '& .MuiButtonBase-root:hover .MuiListItemIcon-root': {
+    '& .MuiListItemButton-root .MuiTouchRipple-root': {
+      color: 'rgb(179 197 192 / 75%)',
+    },
+    '& .MuiListItemButton-root:hover .MuiListItemIcon-root': {
       color: '#3c97a4',
     },
     '&:hover': {
@@ -66,23 +69,23 @@ export default function MiniDrawer() {
     <Drawer variant="permanent">
       <List>
         {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
+          <ListItemButton key={text} color="">
             <ListItemText primary={text} />
             <ListItemIcon>
               {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
             </ListItemIcon>
-          </ListItem>
+          </ListItemButton>
         ))}
       </List>
       <Divider />
       <List>
         {['Tik Tok', 'Trash'].map((text, index) => (
-          <ListItem button key={text}>
+          <ListItemButton key={text}>
             <ListItemText primary={text} />
             <ListItemIcon>
               {index % 2 === 0 ? <AudiotrackIcon /> : <TwitterIcon />}
             </ListItemIcon>
-          </ListItem>
+          </ListItemButton>
         ))}
       </List>
     </Drawer>
