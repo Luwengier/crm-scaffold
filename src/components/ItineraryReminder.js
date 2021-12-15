@@ -3,8 +3,6 @@ import { useTheme } from '@mui/material/styles'
 import { Fab, Badge, TextField, TextareaAutosize, Typography, Popover, Paper, Button, Box } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import TextSnippetIcon from '@mui/icons-material/TextSnippet'
-import AdapterDateFns from '@mui/lab/AdapterDateFns'
-import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import DateTimePicker from '@mui/lab/DateTimePicker'
 import MyCalendarPicker from './MyCalendarPicker'
 import ItineraryGroup from './ItineraryGroup'
@@ -119,18 +117,16 @@ export default function ItineraryReminder() {
 
           <TextField id="standard-basic" label="寵物名" variant="standard" />
 
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateTimePicker
-              renderInput={(props) => <TextField {...props} />}
-              label="提醒時間"
-              value={value}
-              inputFormat="yyyy/MM/dd hh:mm a"
-              mask="___/__/__ __:__ _M"
-              onChange={(newValue) => {
-                setValue(newValue);
-              }}
-            />
-          </LocalizationProvider>
+          <DateTimePicker
+            renderInput={(props) => <TextField {...props} />}
+            label="提醒時間"
+            value={value}
+            inputFormat="yyyy/MM/dd hh:mm a"
+            mask="___/__/__ __:__ _M"
+            onChange={(newValue) => {
+              setValue(newValue);
+            }}
+          />
 
           <TextareaAutosize
             minRows={10}

@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { useMediaQuery, CssBaseline } from '@mui/material'
-import { teal, amber, grey, cyan } from '@mui/material/colors';
+import { teal, amber, grey, cyan } from '@mui/material/colors'
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import ColorModeContext from '../contexts/ColorModeContext'
 
 const getDesignTokens = (mode) => ({
@@ -67,8 +69,10 @@ const withTheme = ChildComponent => {
     return (
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <ChildComponent {...props} />
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <CssBaseline />
+            <ChildComponent {...props} />
+          </LocalizationProvider>
         </ThemeProvider>
       </ColorModeContext.Provider>
     );

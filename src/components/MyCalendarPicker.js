@@ -1,7 +1,5 @@
 import React from 'react'
 import Box from '@mui/material/Box'
-import AdapterDateFns from '@mui/lab/AdapterDateFns'
-import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import StaticDatePicker from '@mui/lab/StaticDatePicker'
 import TextField from '@mui/material/TextField'
 
@@ -24,15 +22,13 @@ export default function MyCalendarPicker(props) {
         '& .PrivatePickersSlideTransition-root': { minHeight: 200 },
       }}
     >
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <StaticDatePicker
-          value={value}
-          onChange={(newValue) => { setValue(newValue) }}
-          minDate={new Date('2015-01-01')}
-          displayStaticWrapperAs="desktop"
-          renderInput={(params) => <TextField {...params} />}
-        />
-      </LocalizationProvider>
+      <StaticDatePicker
+        value={value}
+        onChange={(newValue) => { setValue(newValue) }}
+        minDate={new Date('2015-01-01')}
+        displayStaticWrapperAs="desktop"
+        renderInput={(params) => <TextField {...params} />}
+      />
     </Box>
   )
 }
