@@ -8,7 +8,7 @@ export default function ItineraryGroup(props) {
     const dataToRender = data || Array.from(new Array(3))
     return dataToRender.map((item, index) => {
       return (
-        <Card key={index}>
+        <Card key={index} tabIndex="0">
           <CardContent>
             <Typography className="card-title" gutterBottom variant="subtitle1" component="div">
               你的待辦標題
@@ -61,6 +61,7 @@ export default function ItineraryGroup(props) {
           maxWidth: 345,
           mb: 2,
           mx: 'auto',
+          outlineColor: (theme) => theme.palette.primary.main,
         },
         '& .MuiCardContent-root': {
           pb: 0.5,
@@ -73,6 +74,7 @@ export default function ItineraryGroup(props) {
         },
         '& .card-info': {
           justifyContent: 'space-between',
+          bgcolor: 'grey.50',
         },
         '& .info-sec': {
           display: 'flex',

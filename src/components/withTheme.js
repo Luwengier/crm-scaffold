@@ -1,21 +1,26 @@
 import React, { useState, useMemo } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { useMediaQuery, CssBaseline } from '@mui/material'
-import { teal, amber, grey } from '@mui/material/colors';
+import { teal, amber, grey, cyan } from '@mui/material/colors';
 import ColorModeContext from '../contexts/ColorModeContext'
 
 const getDesignTokens = (mode) => ({
   palette: {
     mode,
     primary: {
-      // ...amber,
-      main: teal[200],
+      bg: '#c8e1df',
+      main: teal[300],
       ...(mode === 'dark' && {
         main: teal[700],
       }),
     },
     secondary: {
-      main: amber['A100'],
+      main: amber['A200'],
+      text: amber[500],
+    },
+    info: {
+      bg: '#edf8f9',
+      main: cyan[500],
     },
     ...(mode === 'dark' && {
       background: {
@@ -37,7 +42,7 @@ const getDesignTokens = (mode) => ({
   },
 })
 
-const withCustomizedTheme = ChildComponent => {
+const withTheme = ChildComponent => {
   const ComposedComponent = props => {
     const [mode, setMode] = useState(
       useMediaQuery('(prefers-color-scheme: dark)')
@@ -72,4 +77,4 @@ const withCustomizedTheme = ChildComponent => {
   return ComposedComponent
 }
 
-export default withCustomizedTheme
+export default withTheme
