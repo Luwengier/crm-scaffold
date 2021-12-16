@@ -7,7 +7,7 @@ export default function MemberInfo() {
   return (
     <Paper elevation={0} sx={{
       p: { xs: 4, sm: 1 },
-      mb: 1,
+      mb: 3,
       bgcolor: 'info.bg',
       color: (theme) =>
         theme.palette.getContrastText(theme.palette.info.bg),
