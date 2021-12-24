@@ -7,10 +7,10 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Pagination from '@mui/material/Pagination'
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
-import MemberInfo from './MemberInfo'
+import MemberInfo from '../../components/MemberInfo'
 import orderData from './orderData'
 
-export default function ConsultationAccordion() {
+function ConsultationAccordion() {
   // const [expanded, setExpanded] = useState('panel1')
   const theme = useTheme()
 
@@ -39,11 +39,12 @@ export default function ConsultationAccordion() {
       <Accordion
         disableGutters
         elevation={0}
+        defaultExpanded={true}
         // expanded={expanded === `panel${index + 1}`}
         // onChange={handleChange(`panel${index + 1}`)}
         key={index}
       >
-        <AccordionSummary expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />}>
+        <AccordionSummary expandIcon={<ArrowForwardIosSharpIcon />}>
           <Box className="order-info-wrapper">
             <div className="order-info">
               <div className="serial-sec">{index + 1}</div>
@@ -176,228 +177,220 @@ export default function ConsultationAccordion() {
   }
 
   return (
-    <Box sx={{
-      '& .MuiAccordion-root': {
-        border: `1px solid ${theme.palette.divider}`,
-        '&:not(:last-child)': {
-          borderBottom: 0,
+    <Box
+      sx={{
+        '& .MuiAccordion-root': {
+          overflow: 'auto',
+          border: `1px solid ${theme.palette.divider}`,
+          borderTop: 0,
+          '&:before': {
+            display: 'none',
+          },
+          // '&:first-of-type': {
+          //   borderTop: 0,
+          // },
+          '&:last-of-type': {
+            borderBottomLeftRadius: '0.5rem',
+            borderBottomRightRadius: '0.5rem',
+          },
         },
-        '&:before': {
-          display: 'none',
+        '& .MuiAccordionSummary-root': {
+          pl: 0,
+          backgroundColor: 'primary.text',
+          '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
+            transform: 'rotate(90deg)',
+          },
+          '& .MuiAccordionSummary-expandIconWrapper svg': {
+            fontSize: '0.9rem',
+          },
+          '& .MuiAccordionSummary-content': {
+            margin: 0,
+          },
         },
-        '&:last-of-type': {
-          borderBottomLeftRadius: '0.5rem',
-          borderBottomRightRadius: '0.5rem',
-        }
-      },
-      '& .MuiAccordionSummary-root': {
-        pl: 0,
-        backgroundColor: '#5590ac',
-        '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-          transform: 'rotate(90deg)',
+        '& .MuiAccordionDetails-root': {
+          padding: 0,
         },
-        '& .MuiAccordionSummary-content': {
-          margin: 0,
+        '& .MuiPagination-root': {
+          paddingTop: theme.spacing(4),
+          '& .MuiPagination-ul': {
+            justifyContent: 'center',
+          },
+          '& .MuiPaginationItem-root.Mui-selected': {
+            backgroundColor: 'secondary.bg',
+          },
         },
-      },
-      '& .MuiAccordionDetails-root': {
-        padding: 0,
-        // borderTop: '1px solid rgba(0, 0, 0, .125)',
-      },
-      '& .MuiPagination-root': {
-        paddingTop: theme.spacing(4),
-        '& .MuiPagination-ul': {
-          justifyContent: 'center',
-        },
-        '& .MuiPaginationItem-root.Mui-selected': {
-          backgroundColor: 'secondary.bg',
-        },
-      },
-
-      '& .order-info-wrapper': {
-        flexGrow: 1,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center',
-        '& .order-info': {
+        '& .order-info-wrapper': {
           flexGrow: 1,
-          display: 'inline-flex',
+          display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'center',
-        },
-        '& .serial-sec': {
-          flex: '0 0 4rem',
-          display: 'inline-flex',
           justifyContent: 'center',
-          fontSize: '1.5rem',
-          color: '#fafafa',
-          padding: '0 1em',
-          minWidth: 0,
-        },
-        '& .info-sec-container': {
-          flex: '0 0 calc(100% - 4rem)',
-          display: 'inline-flex',
-          flexWrap: 'wrap',
-          padding: '0.25em 0',
-        },
-        '& .info-sec-wrapper': {
-          flex: '0 0 100%',
-          display: 'inline-flex',
-          flexWrap: 'wrap',
-          paddingRight: '1.75em',
-        },
-        '& .info-sec': {
-          flex: '0 0 50%',
-          paddingTop: '0.125em',
-          paddingBottom: '0.125em',
-        },
-        '& .info-title': {
-          fontWeight: 'bold',
-          color: (theme) => theme.palette.secondary.text,
-        },
-        '& .info-content': {
-          fontWeight: 'bold',
-          color: '#fafafa',
-        },
-        '& .order-id': {
-          color: '#fafafa',
-          padding: '0.5em 1.5em',
-        },
-      },
-
-      '& .order-table': {
-        p: 0,
-        '& .table-header': {
-          display: 'flex',
-          color: '#fafafa',
-          backgroundColor: '#a4a4a4',
-          '& > div': {
+          '& .order-info': {
+            flexGrow: 1,
             display: 'inline-flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
+          },
+          '& .serial-sec': {
+            flex: '0 0 4rem',
+            display: 'inline-flex',
             justifyContent: 'center',
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            color: 'text.light',
+            padding: '0 1em',
+            minWidth: 0,
+          },
+          '& .info-sec-container': {
+            flex: '0 0 calc(100% - 4rem)',
+            display: 'inline-flex',
+            flexWrap: 'wrap',
             padding: '0.25em 0',
-            borderRight: '1px solid #fafafa',
           },
-          '& > div:last-child': {
-            borderRight: 'none',
+          '& .info-sec-wrapper': {
+            flex: '0 0 100%',
+            display: 'inline-flex',
+            flexWrap: 'wrap',
+            paddingRight: '1.75em',
           },
-          '& .name-sec': {
-            justifyContent: 'flex-start',
-            paddingLeft: '1.5em',
-            paddingRight: '1.5em',
+          '& .info-sec': {
+            flex: '0 0 50%',
+            paddingTop: '0.125em',
+            paddingBottom: '0.125em',
+          },
+          '& .info-title': {
+            fontWeight: 'bold',
+            color: (theme) => theme.palette.secondary.text,
+          },
+          '& .info-content': {
+            fontWeight: 'bold',
+            color: 'text.light',
+          },
+          '& .order-id': {
+            color: 'text.light',
+            padding: '0.5em 1.5em',
           },
         },
-        '& .table-item': {
-          display: 'flex',
-          color: '#3e414f',
-          backgroundColor: '#efefef',
-          '&:nth-of-type(2n)': {
-            backgroundColor: '#fafafa',
+        '& .order-table': {
+          p: 0,
+          '& .table-header': {
+            display: 'flex',
+            color: 'text.light',
+            backgroundColor: '#a4a4a4',
+            '& > div': {
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0.25em 0',
+              borderRight: `1px solid ${theme.palette.text.light}`,
+            },
+            '& > div:last-child': {
+              borderRight: 'none',
+            },
+            '& .name-sec': {
+              justifyContent: 'flex-start',
+              paddingLeft: '1.5em',
+              paddingRight: '1.5em',
+            },
           },
-          '& > div': {
+          '& .table-item': {
+            display: 'flex',
+            color: '#3e414f',
+            backgroundColor: '#efefef',
+            '&:nth-of-type(2n)': {
+              backgroundColor: '#fafafa',
+            },
+            '& > div': {
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0.5em 0',
+              borderRight: `1px solid ${theme.palette.text.light}`,
+            },
+            '& > div:last-of-type': {
+              borderRight: 'none',
+            },
+            '& .name-sec': {
+              justifyContent: 'flex-start',
+              paddingLeft: '1.5em',
+              paddingRight: '1.5em',
+            },
+          },
+          '& .serial-sec': {
+            flex: '0 0 5%'
+          },
+          '& .name-sec': {
+            flex: '0 0 45%',
+          },
+          '& .clerk-sec': {
+            flex: '0 0 10%'
+          },
+          '& .price-sec': {
+            flex: '0 0 10%'
+          },
+          '& .quantity-sec': {
+            flex: '0 0 10%'
+          },
+          '& .discount-sec': {
+            flex: '0 0 10%'
+          },
+          '& .total-sec': {
+            flex: '0 0 10%'
+          },
+        },
+        '& .order-detail': {
+          display: 'flex',
+          justifyContent: 'space-between',
+          color: '#505877',
+          backgroundColor: '#ffffff',
+          padding: '0.5em 1em',
+          '& .credit-info': {
+            display: 'inline-flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+          },
+          '& .credit-info > div': {
+            fontSize: '0.9rem',
+            flex: '0 0 100%',
+            display: 'inline-block',
+            paddingRight: '1em',
+          },
+          '& .received-info': {
             display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0.5em 0',
-            borderRight: '1px solid #fafafa',
           },
-          '& > div:last-of-type': {
-            borderRight: 'none',
+          '& .received-info > div': {
+            display: 'inline-flex',
+            alignItems: 'center',
           },
-          '& .name-sec': {
-            justifyContent: 'flex-start',
-            paddingLeft: '1.5em',
-            paddingRight: '1.5em',
+          '& .received-list > div': {
+            display: 'inline-block',
+            paddingRight: '1em',
+          },
+          '& .total-sum': {
+            fontSize: '1.25rem',
+            fontWeight: 'bold',
+            color: '#3e414f',
           },
         },
-        '& .serial-sec': {
-          flex: '0 0 5%'
+        '@media (min-width: 600px)': {
+          '& .order-info-wrapper .info-sec-wrapper': {
+            flexDirection: 'column',
+            flex: 'unset',
+          },
+          '& .order-info-wrapper .info-sec-wrapper:last-child': {
+            paddingRight: 0,
+          },
+          '& .order-info-wrapper .info-sec': {
+            flex: 'unset',
+          },
         },
-        '& .name-sec': {
-          flex: '0 0 45%',
-        },
-        '& .clerk-sec': {
-          flex: '0 0 10%'
-        },
-        '& .price-sec': {
-          flex: '0 0 10%'
-        },
-        '& .quantity-sec': {
-          flex: '0 0 10%'
-        },
-        '& .discount-sec': {
-          flex: '0 0 10%'
-        },
-        '& .total-sec': {
-          flex: '0 0 10%'
-        },
-      },
-
-      '& .order-detail': {
-        display: 'flex',
-        justifyContent: 'space-between',
-        color: '#505877',
-        backgroundColor: '#ffffff',
-        padding: '0.5em 1em',
-        '& .credit-info': {
-          display: 'inline-flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-        },
-        '& .credit-info > div': {
-          fontSize: '0.9rem',
-          flex: '0 0 100%',
-          display: 'inline-block',
-          paddingRight: '1em',
-        },
-        '& .received-info': {
-          display: 'inline-flex',
-          alignItems: 'center',
-        },
-        '& .received-info > div': {
-          display: 'inline-flex',
-          alignItems: 'center',
-        },
-        '& .received-list > div': {
-          display: 'inline-block',
-          paddingRight: '1em',
-        },
-        '& .total-sum': {
-          fontSize: '1.25rem',
-          fontWeight: 'bold',
-          color: '#3e414f',
-        },
-      },
-
-      '@media (min-width: 600px)': {
-        '& .order-info-wrapper .info-sec-wrapper': {
-          flexDirection: 'column',
-          flex: 'unset',
-        },
-        '& .order-info-wrapper .info-sec-wrapper:last-child': {
-          paddingRight: 0,
-        },
-        '& .order-info-wrapper .info-sec': {
-          flex: 'unset',
-        },
-      },
-
-    }}>
+      }}
+    >
+      <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', pb: 1 }}>
+        購買紀錄
+      </Typography>
       <MemberInfo />
-      {/* <Button
-        variant="text"
-        color="secondary"
-        sx={{
-          color: 'secondary.text',
-          fontWeight: 'bold',
-          fontSize: '1.125rem',
-          mb: 1.5,
-        }}
-        startIcon={<CancelIcon sx={{ transform: 'rotate(45deg)' }} />}
-      >
-        新增諮詢紀錄
-      </Button> */}
       <Box sx={{ borderRadius: '0.5rem', overflow: 'auto' }}>
         {renderAccordion(orderData)}
       </Box>
@@ -405,3 +398,6 @@ export default function ConsultationAccordion() {
     </Box>
   )
 }
+
+
+export default ConsultationAccordion

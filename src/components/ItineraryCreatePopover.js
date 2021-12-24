@@ -58,7 +58,7 @@ export default function ItineraryCreatePopover(props) {
       }}
     >
 
-      <Paper sx={{ p: 2, overflow: 'hidden', flexGrow: 1, boxShadow: 2, display: 'flex', flexDirection: 'column' }}>
+      <Paper sx={{ p: 2, flexGrow: 1, boxShadow: 2, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ flexGrow: 1 }}>
           <Typography
             variant="h6"
@@ -117,13 +117,13 @@ export default function ItineraryCreatePopover(props) {
               maxWidth: '100%',
               maxHeight: 200,
               fontSize: '1rem',
-              marginBottom: theme.spacing(4),
+              // marginBottom: theme.spacing(4),
               outlineColor: theme.palette.primary.main
             }}
           />
         </Box>
 
-        <Box sx={{ textAlign: 'center', pt: 4, pb: 2 }}>
+        <Box sx={{ textAlign: 'center', pt: 2.5, pb: 2 }}>
           <Button
             color="secondary"
             variant="contained"

@@ -5,8 +5,9 @@ import withTheme from './withTheme'
 import MiniDrawer from './MiniDrawer'
 import ItineraryReminder from './ItineraryReminder'
 
-const Home = lazy(() => import('../pages/Home'))
-const ConsultationAccordion = lazy(() => import('../pages/ConsultationAccordion/ConsultationAccordion'))
+const Home = lazy(() => import('../pages/Home/Home'))
+const PurchaseRecordsAccordion = lazy(() => import('../pages/PurchaseRecordsAccordion/PurchaseRecordsAccordion'))
+const ConsultationManage = lazy(() => import('../pages/ConsultationManage/ConsultationMange'))
 
 const App = () => {
   return (
@@ -15,11 +16,12 @@ const App = () => {
         <MiniDrawer />
         <ItineraryReminder />
 
-        <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 4 }, minWidth: 0 }}>
+        <Box component="main" sx={{ flexGrow: 1, p: 2, px: { sm: 4 }, minWidth: 0 }}>
           <Suspense fallback={null}>
             <Routes>
               <Route exact path="/" element={<Home />} />
-              <Route exact path="/consultation" element={<ConsultationAccordion />} />
+              <Route exact path="/purchase-record" element={<PurchaseRecordsAccordion />} />
+              <Route exact path="/consultation" element={<ConsultationManage />} />
             </Routes>
           </Suspense>
         </Box>

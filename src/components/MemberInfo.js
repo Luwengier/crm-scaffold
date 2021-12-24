@@ -3,21 +3,25 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
-export default function MemberInfo() {
+export default function MemberInfo(props) {
   return (
-    <Paper elevation={0} sx={{
-      p: { xs: 4, sm: 1 },
-      mb: 3,
-      bgcolor: 'info.bg',
-      color: (theme) =>
-        theme.palette.getContrastText(theme.palette.info.bg),
-      '& .MuiGrid-item': {
-        pr: 2,
-      },
-      '& .MuiTypography-subtitle1': {
-        fontWeight: 'bold',
-      },
-    }}>
+    <Paper
+      elevation={0}
+      sx={{
+        mb: 3,
+        p: { xs: 4, sm: 1 },
+        bgcolor: 'info.bg',
+        border: (theme) => `3px solid ${theme.palette.grey[100]}`,
+        color: (theme) => theme.palette.getContrastText(theme.palette.info.bg),
+        '& .MuiGrid-item': {
+          pr: 2,
+        },
+        '& .MuiTypography-subtitle1': {
+          fontWeight: 'bold',
+        },
+        ...props.sx,
+      }}
+    >
       <Grid container>
         <Grid item container xs={12} sm="auto" direction="column">
           <Grid item>
@@ -30,10 +34,10 @@ export default function MemberInfo() {
           </Grid>
           <Grid item>
             <Typography variant="subtitle1" component="span">
-              會員代碼 :&nbsp;
+              會員姓名 :&nbsp;
             </Typography>
             <Typography variant="body1" component="span">
-              CU009999
+              游小姐
             </Typography>
           </Grid>
         </Grid>
@@ -41,18 +45,18 @@ export default function MemberInfo() {
         <Grid item container xs={12} sm="auto" direction="column">
           <Grid item>
             <Typography variant="subtitle1" component="span">
-              會員代碼 :&nbsp;
+              會員卡號 :&nbsp;
             </Typography>
             <Typography variant="body1" component="span">
-              CU0099992266
+              系統預帶序號
             </Typography>
           </Grid>
           <Grid item>
             <Typography variant="subtitle1" component="span">
-              會員代碼cc :&nbsp;
+              行動電話 :&nbsp;
             </Typography>
             <Typography variant="body1" component="span">
-              CU009999
+              0970123456
             </Typography>
           </Grid>
         </Grid>
@@ -60,18 +64,18 @@ export default function MemberInfo() {
         <Grid item container xs={12} sm="auto" direction="column">
           <Grid item>
             <Typography variant="subtitle1" component="span">
-              會員代碼 :&nbsp;
+              出生日期 :&nbsp;
             </Typography>
             <Typography variant="body1" component="span">
-              CU0099992266
+              1995/12/10
             </Typography>
           </Grid>
           <Grid item>
             <Typography variant="subtitle1" component="span">
-              會員代碼cc :&nbsp;
+              Email :&nbsp;
             </Typography>
             <Typography variant="body1" component="span">
-              CU009999677777000
+              naosnaos@gmail.com
             </Typography>
           </Grid>
         </Grid>

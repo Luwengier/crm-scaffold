@@ -15,6 +15,7 @@ const getDesignTokens = (mode) => ({
       ...(mode === 'dark' && {
         main: teal[700],
       }),
+      text: '#5590ac',
     },
     secondary: {
       bg: '#fff8df',
@@ -22,6 +23,7 @@ const getDesignTokens = (mode) => ({
       text: amber[500],
     },
     info: {
+      shallow: cyan[50],
       bg: '#edf8f9',
       main: cyan[500],
     },
@@ -35,12 +37,23 @@ const getDesignTokens = (mode) => ({
       ...(mode === 'light'
         ? {
           primary: grey[900],
-          secondary: grey[800],
+          secondary: 'rgba(0, 0, 0, 0.6)',
+          third: grey[700],
+          light: grey[50],
         }
         : {
           primary: '#fff',
-          secondary: grey[500],
+          secondary: grey[100],
+          third: grey[200],
+          light: grey[900],
         }),
+    },
+    jewelry: {
+      red: '#ff756a',
+      blue: '#57c3ff',
+    },
+    grayscale: {
+      main: '#e6e6e6',
     },
   },
 })
