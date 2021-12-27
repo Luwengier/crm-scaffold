@@ -5,7 +5,7 @@ import withTheme from './withTheme'
 import MiniDrawer from './MiniDrawer'
 import ItineraryReminder from './ItineraryReminder'
 
-const Home = lazy(() => import('../pages/Home/Home'))
+const Home = lazy(() => import('../pages/HomePage/Home'))
 const PurchaseRecordsAccordion = lazy(() => import('../pages/PurchaseRecordsAccordion/PurchaseRecordsAccordion'))
 const ConsultationManage = lazy(() => import('../pages/ConsultationManage/ConsultationMange'))
 

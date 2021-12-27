@@ -87,7 +87,10 @@ export default function ItineraryCreatePopover(props) {
           </TextField>
 
           <DateTimePicker
-            renderInput={(props) => <TextField variant="standard" {...props} sx={{ mt: 1 }} />}
+            renderInput={(props) => <TextField variant="standard" {...props} sx={{
+              mt: 1,
+              '& input': { color: 'rgba(0, 0, 0, 0.42)' },
+            }} />}
             label="提醒時間"
             value={value}
             inputFormat="yyyy/MM/dd hh:mm a"
@@ -104,6 +107,7 @@ export default function ItineraryCreatePopover(props) {
             fontSize: '0.75rem',
             lineHeight: '1.4375em',
             letterSpacing: '0.00938em',
+            color: 'rgba(0, 0, 0, 0.42)',
           }}>
             提醒內容
           </Typography>
@@ -118,29 +122,31 @@ export default function ItineraryCreatePopover(props) {
               maxHeight: 200,
               fontSize: '1rem',
               // marginBottom: theme.spacing(4),
+              borderColor: 'rgba(0, 0, 0, 0.42)',
               outlineColor: theme.palette.primary.main
             }}
           />
         </Box>
 
-        <Box sx={{ textAlign: 'center', pt: 2.5, pb: 2 }}>
-          <Button
-            color="secondary"
-            variant="contained"
-            onClick={onClose}
-            sx={{
-              fontWeight: 'bold',
-              color: 'grey.700',
-              '&:hover': {
-                bgcolor: 'secondary.light',
-              },
-            }}
-          >
-            新增提醒
-          </Button>
-        </Box>
-
       </Paper>
+
+      <Box sx={{ textAlign: 'center', pt: 2.5, pb: 2 }}>
+        <Button
+          color="secondary"
+          variant="contained"
+          onClick={onClose}
+          sx={{
+            fontWeight: 'bold',
+            color: 'grey.700',
+            '&:hover': {
+              bgcolor: 'secondary.light',
+            },
+          }}
+        >
+          新增提醒
+        </Button>
+      </Box>
+
     </Popover>
   )
 }

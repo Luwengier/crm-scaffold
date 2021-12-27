@@ -20,7 +20,8 @@ const getDesignTokens = (mode) => ({
     secondary: {
       bg: '#fff8df',
       main: amber['A200'],
-      text: amber[500],
+      text: amber[300],
+      darkText: amber[500],
     },
     info: {
       shallow: cyan[50],
@@ -39,6 +40,8 @@ const getDesignTokens = (mode) => ({
           primary: grey[900],
           secondary: 'rgba(0, 0, 0, 0.6)',
           third: grey[700],
+          mid: grey[500],
+          fade: grey[300],
           light: grey[50],
         }
         : {
@@ -50,7 +53,10 @@ const getDesignTokens = (mode) => ({
     },
     jewelry: {
       red: '#ff756a',
+      fadeRed: '#f1cecc',
       blue: '#57c3ff',
+      fadeBlue: '#cfe2ec',
+      // #ff8d6b
     },
     grayscale: {
       main: '#e6e6e6',

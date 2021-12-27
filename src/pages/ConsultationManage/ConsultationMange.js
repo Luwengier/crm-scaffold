@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
+import TextareaAutosize from '@mui/material/TextareaAutosize'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined'
@@ -19,21 +20,37 @@ import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
 import MemberInfo from '../../components/MemberInfo'
-import dummyData from './dummyData'
-
-const demoText = `寺躲讀眼枝星草神叫學怎包沒寺老原物意聲自戶。游雨苦只文共力自能虎百書師。聲穴葉父問服穴支洋美眼馬哭巾牛，都房穿往朱陽，反五哭村喜小毛畫們爪背卜波巴山弓連個吹毛入。
-珠夕經老荷加花，枝她隻由像她雞抄錯借金色大屋、女古美拍來法員旦瓜對要游主苦助能波立動，乞很生玉種年耍後。
-
-家他明像它次害古還黃汁節，新布和停，英哪王像百跑回，高助做寫海面氣封內馬金乾許花；升習十能書意足放一完。`
+import DisplayToggleButton from './DisplayToggleButton'
+import CreatePopover from './CreatePopover'
+import DeletePopover from './DeletePopover'
+import { dummyData, principals, principalMapping } from './dummyData'
 
 const insertIsExpanded = consultations => {
-  return consultations.map(consultation => ({ ...consultation, isExpanded: !Boolean(consultation.isCompleted) }))
+  return consultations.map(consultation => ({ ...consultation, isExpanded: true }))
+}
+
+const getLocaleDateString = () => {
+  const newLocaleDateString = new Date().toLocaleString()
+  return newLocaleDateString.replace('午', '午 ').slice(0, -3)
+}
+
+const filterDate = (data, selected) => {
+  if (!selected) { return data }
+  else if (selected === 'undone') {
+    return data.filter(item => !item.isCompleted)
+  } else if (selected === 'done') {
+    return data.filter(item => item.isCompleted)
+  }
 }
 
 function ConsultationMange() {
   const theme = useTheme()
   const [consultations, setConsultations] = useState(null)
-  const [editingId, setEditingId] = useState('')
+  const [editingItem, setEditingItem] = useState({})
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [deleteEl, setDeleteEl] = useState(null)
+  const [selected, setSelected] = useState('')
+
 
   useEffect(() => {
     setConsultations(insertIsExpanded(dummyData))
@@ -43,35 +60,134 @@ function ConsultationMange() {
     const newConsultations = consultations.map(consultation => {
       return consultation.id === id ? { ...consultation, isExpanded: isEditing ? true : !consultation.isExpanded } : consultation
     })
-
     setConsultations(newConsultations)
   }
 
-  const onEditClick = id => e => {
+  const onSelected = (event, newSelected) => {
+    if (newSelected !== null) {
+      setSelected(newSelected);
+    }
+  }
+
+  const onCompletedToggle = item => e => {
     e.stopPropagation()
-    setEditingId(id)
+    const newConsultations = consultations.map(consultation => {
+      return consultation.id === item.id
+        ? {
+          ...consultation,
+          ...(!consultation.isCompleted && { completedAt: getLocaleDateString() }),
+          isCompleted: !consultation.isCompleted,
+        }
+        : consultation
+    })
+    if (item.id === editingItem.id) setEditingItem({})
+    setConsultations(newConsultations)
+  }
+
+  const handleCreateClick = (e) => {
+    setAnchorEl(e.currentTarget)
+  }
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation()
+    setDeleteEl(e.currentTarget)
+  }
+
+  const handleCreateClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleDeleteClose = () => {
+    setDeleteEl(null)
+  }
+
+  const onDeleteConfirm = id => {
+    const newConsultations = consultations.filter(consultation => consultation.id !== id)
+    setConsultations(newConsultations)
+  }
+
+  // 編輯相關 Function
+  const onEditClick = item => e => {
+    e.stopPropagation()
+    setEditingItem(item)
     // 編輯時自動展開
-    onExpandedChange(id, id)()
+    onExpandedChange(item.id, Boolean(item.id))()
   }
 
   const onEditCancel = e => {
     e.stopPropagation()
-    setEditingId('')
+    setEditingItem({})
   }
 
-  const onCompletedToggle = id => e => {
+  const onPrincipalChange = e => {
+    const newEditingItem = {
+      ...editingItem,
+      principal: {
+        ...editingItem.principal,
+        id: e.target.value,
+        name: principalMapping[e.target.value]
+      }
+    }
+    setEditingItem(newEditingItem)
+  }
+
+  const onEditConfirm = e => {
+    // 需要 stopPropagation 否則 setConsultations 會被 onExpandedChange 裡的覆蓋
     e.stopPropagation()
     const newConsultations = consultations.map(consultation => {
-      return consultation.id === id ? { ...consultation, isCompleted: !consultation.isCompleted } : consultation
-    })
-    if (id === editingId) setEditingId('')
+      return consultation.id === editingItem.id
+        ? { ...consultation, ...editingItem }
+        : consultation
+    }
+    )
     setConsultations(newConsultations)
+    setEditingItem({})
+  }
+
+  const renderPrincipalOptions = principals => {
+    return principals.map(principal => (
+      <option value={principal.id} key={principal.id}>
+        {principal.name}
+      </option>
+    ))
+  }
+
+
+  const renderIconButton = (item, isCompleted, isEditing) => {
+    if (isCompleted) {
+      return (
+        <IconButton aria-label="edit" onClick={onCompletedToggle(item)}>
+          <ReplayOutlinedIcon />
+        </IconButton>
+      )
+    } else if (isEditing) {
+      return (
+        <React.Fragment>
+          <Button variant="contained" size="small" color="inherit" disableElevation={true} onClick={onEditCancel}>取消</Button>
+          <Button variant="contained" size="small" color="inherit" disableElevation={true} onClick={onEditConfirm}>修改</Button>
+        </React.Fragment>
+      )
+    } else {
+      return (
+        <React.Fragment>
+          <IconButton aria-label="edit" onClick={onEditClick(item)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton aria-label="delete" onClick={handleDeleteClick} data-id={item.id}>
+            <DeleteOutlineIcon />
+          </IconButton>
+          <IconButton aria-label="complete" onClick={onCompletedToggle(item)}>
+            <CheckCircleOutlineIcon />
+          </IconButton>
+        </React.Fragment>
+      )
+    }
   }
 
   const renderConsultations = data => {
-    return data && data.map((item, index) => {
+    return data && filterDate(data, selected).map((item, index) => {
       const isCompleted = item.isCompleted ? ' completed' : ''
-      const isEditing = (editingId === item.id) && !item.isCompleted ? ' editing' : ''
+      const isEditing = (editingItem.id === item.id) && !item.isCompleted ? ' editing' : ''
 
       return (
         <div className={`accordion-wrapper${isCompleted}`} key={item.id}>
@@ -91,88 +207,119 @@ function ConsultationMange() {
                     {index + 1}
                   </div>
                   <div className="info-sec-wrapper">
+                    {isEditing
+                      ? (
+                        <React.Fragment>
+                          <div className="info-sec">
+                            <Typography className="info-title" variant="subtitle1" component="span">
+                              轉派給 :&nbsp;
+                            </Typography>
+                            <select
+                              value={(editingItem.principal && editingItem.principal.id) || ''}
+                              onChange={onPrincipalChange}
+                            >
+                              <option value="">負責人</option>
+                              {renderPrincipalOptions(principals)}
+                              {/* <option value="1">林愈梅</option>
+                              <option value="2">沈明傑</option> */}
+                            </select>
+                          </div>
 
-                    <div className="info-sec">
-                      <Typography className="info-title" variant="subtitle1" component="span">
-                        負責人 :&nbsp;
-                      </Typography>
-                      <Typography className="info-content" variant="subtitle1" component="span">
-                        金小城
-                      </Typography>
-                    </div>
+                          <div className="info-sec">
+                            <Typography className="info-title" variant="subtitle1" component="span">
+                              轉派給 :&nbsp;
+                            </Typography>
+                            <select>
+                              <option value="">商品諮詢</option>
+                              <option value="1">客訴案件</option>
+                            </select>
+                          </div>
 
-                    <div className="info-sec">
-                      <Typography className="info-title" variant="subtitle1" component="span">
-                        類別 :&nbsp;
-                      </Typography>
-                      <Typography className="info-content" variant="subtitle1" component="span">
-                        商品諮詢
-                      </Typography>
-                    </div>
+                          <div className="info-sec">
+                            <Typography className="info-title" variant="subtitle1" component="span">
+                              記錄人員 :&nbsp;
+                            </Typography>
+                            <Typography className="info-content" variant="subtitle1" component="span">
+                              王小美
+                            </Typography>
+                          </div>
+                        </React.Fragment>
+                      )
+                      : (
+                        <React.Fragment>
+                          <div className="info-sec">
+                            <Typography className="info-title" variant="subtitle1" component="span">
+                              負責人 :&nbsp;
+                            </Typography>
+                            <Typography className="info-content" variant="subtitle1" component="span">
+                              {item.principal && item.principal.name}
+                            </Typography>
+                          </div>
 
-                    <div className="info-sec">
-                      <Typography className="info-title" variant="subtitle1" component="span">
-                        記錄人員 :&nbsp;
-                      </Typography>
-                      <Typography className="info-content" variant="subtitle1" component="span">
-                        王小美
-                      </Typography>
-                    </div>
+                          <div className="info-sec">
+                            <Typography className="info-title" variant="subtitle1" component="span">
+                              類別 :&nbsp;
+                            </Typography>
+                            <Typography className="info-content" variant="subtitle1" component="span">
+                              商品諮詢
+                            </Typography>
+                          </div>
 
-                    <div className="info-sec">
-                      <Typography className="info-title" variant="subtitle1" component="span">
-                        {isCompleted ? '已完成' : '未完成'}
-                      </Typography>
-                    </div>
+                          <div className="info-sec">
+                            <Typography className="info-title" variant="subtitle1" component="span">
+                              記錄人員 :&nbsp;
+                            </Typography>
+                            <Typography className="info-content" variant="subtitle1" component="span">
+                              王小美
+                            </Typography>
+                          </div>
+
+                          <div className="info-sec">
+                            <Typography className="info-title" variant="subtitle1" component="span">
+                              {isCompleted ? '已完成' : '未完成'}
+                            </Typography>
+                          </div>
+                        </React.Fragment>
+                      )
+                    }
 
                   </div>
                 </Grid>
 
                 <Grid item className="icon-group">
-                  {isCompleted
-                    ? (
-                      <IconButton aria-label="edit" onClick={onCompletedToggle(item.id)}>
-                        <ReplayOutlinedIcon />
-                      </IconButton>
-                    )
-                    : (
-                      <React.Fragment>
-                        <IconButton aria-label="edit" onClick={isEditing ? onEditCancel : onEditClick(item.id)}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton aria-label="delete" onClick={e => e.stopPropagation()}>
-                          <DeleteOutlineIcon />
-                        </IconButton>
-                        <IconButton aria-label="finish" onClick={onCompletedToggle(item.id)}>
-                          <CheckCircleOutlineIcon />
-                        </IconButton>
-                      </React.Fragment>
-                    )
-                  }
+                  {renderIconButton(item, isCompleted, isEditing)}
                 </Grid>
 
               </Grid>
             </AccordionSummary>
 
             <AccordionDetails className={isCompleted}>
-              <div className="accordion-content">
-                {demoText}
-              </div>
+              {isEditing
+                ? (
+                  <TextareaAutosize className="text-area" maxRows={4} minRows={4} defaultValue={item.text} />
+                )
+                : (
+                  <div className="accordion-content">
+                    {item.text}
+                  </div>
+                )
+              }
             </AccordionDetails>
           </Accordion>
           <div className={`accordion-actions${isCompleted}`}>
 
             <Stack className="chip-wrapper" direction="row" spacing={1}>
-              <Chip className="red" label="緊急" size="small" />
-              <Chip className="blue" label="重要" size="small" />
+              <Chip className={isCompleted ? 'fadeRed' : 'red'} label="緊急" size="small" />
+              <Chip className={isCompleted ? 'fadeBlue' : 'blue'} label="重要" size="small" />
+              <Chip className={isCompleted ? 'fade' : ''} label="派發工單" size="small" />
             </Stack>
 
             <div className="data-group">
               {isCompleted
                 ? (
                   <div className="record-date">
-                    <span>完成時間 :&nbsp;</span>
-                    <span>{item.completedAt}</span>
+                    <span className="obvious">完成時間 :&nbsp;</span>
+                    <span className="obvious">{item.completedAt}</span>
                   </div>
                 )
                 : (
@@ -193,13 +340,15 @@ function ConsultationMange() {
                   </React.Fragment>
                 )
               }
-
             </div>
           </div>
         </div>
       )
     })
   }
+
+  const createOpen = Boolean(anchorEl)
+  const deleteOpen = Boolean(deleteEl)
 
   return (
     <Box
@@ -218,7 +367,6 @@ function ConsultationMange() {
         },
         '& .MuiAccordionSummary-root': {
           pl: 0,
-          // pr: { xs: 0, sm: 2 },
           backgroundColor: 'primary.text',
           '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
             transform: 'rotate(90deg)',
@@ -236,12 +384,15 @@ function ConsultationMange() {
           '&.editing': {
             bgcolor: 'secondary.text',
           },
+          '&.editing .consultation-info': {
+            color: 'text.secondary',
+          },
         },
         '& .MuiAccordionDetails-root': {
           padding: 0,
-          height: '8rem',
+          overflow: 'auto',
           '&.completed': {
-            color: 'text.secondary',
+            color: 'text.disabled',
             bgcolor: '#fcfcfc',
           },
         },
@@ -272,7 +423,7 @@ function ConsultationMange() {
         },
         '& .info-sec': {
           display: 'inline-block',
-          pr: 1.5,
+          pr: 2.5,
           '& .info-title': {
             fontWeight: 'bold',
           },
@@ -281,6 +432,14 @@ function ConsultationMange() {
           display: 'flex',
           alignItems: 'center',
           px: 0.75,
+          '& .MuiButton-root': {
+            mx: 0.5,
+            bgcolor: 'background.paper',
+            fontWeight: 'bold',
+          },
+          '& .MuiButton-root:hover': {
+            bgcolor: 'text.light',
+          },
           '& .MuiIconButton-root': {
             color: 'text.light',
           },
@@ -290,6 +449,18 @@ function ConsultationMange() {
           px: 2.5,
           whiteSpace: 'pre-line',
         },
+        '& .text-area': {
+          py: 1.5,
+          px: 2.5,
+          display: 'block',
+          width: '100%',
+          minWidth: '100%',
+          maxWidth: '100%',
+          border: 'none',
+          fontSize: '1rem',
+          lineHeight: 1.5,
+          letterSpacing: '0.00938em',
+        },
         '& .accordion-actions': {
           display: 'flex',
           justifyContent: 'space-between',
@@ -297,16 +468,18 @@ function ConsultationMange() {
         },
         '& .chip-wrapper': {
           p: 1,
+          '& .MuiChip-root': {
+            bgcolor: 'text.mid',
+          },
           '& .MuiChip-label': {
             px: 2,
             color: 'text.light',
           },
-          '& .red': {
-            bgcolor: 'jewelry.red',
-          },
-          '& .blue': {
-            bgcolor: 'jewelry.blue',
-          },
+          '& .fade': { bgcolor: 'text.fade' },
+          '& .red': { bgcolor: 'jewelry.red' },
+          '& .fadeRed': { bgcolor: 'jewelry.fadeRed' },
+          '& .blue': { bgcolor: 'jewelry.blue' },
+          '& .fadeBlue': { bgcolor: 'jewelry.fadeBlue' },
         },
         '& .data-group': {
           display: 'flex',
@@ -330,17 +503,45 @@ function ConsultationMange() {
         諮詢管理
       </Typography> */}
       <MemberInfo sx={{ mb: 1 }} />
-      <Button
+      <Box
         sx={{
-          fontSize: '1.125rem',
-          fontWeight: 'bold',
-          color: 'secondary.text',
-          '& .MuiButton-startIcon svg': { fontSize: '1.25rem' },
+          mb: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
-        startIcon={<AddCircleIcon />}
       >
-        新增諮詢紀錄
-      </Button>
+        <DisplayToggleButton
+          selected={selected}
+          setSelected={setSelected}
+          onSelected={onSelected}
+        />
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={handleCreateClick}
+          sx={{
+            fontSize: '1.125rem',
+            fontWeight: 'bold',
+            color: 'secondary.darkText',
+            '& .MuiButton-startIcon svg': { fontSize: '1.25rem' },
+          }}
+          startIcon={<AddCircleIcon />}
+        >
+          新增諮詢紀錄
+        </Button>
+      </Box>
+      <CreatePopover
+        open={createOpen}
+        anchorEl={anchorEl}
+        onClose={handleCreateClose}
+      />
+      <DeletePopover
+        open={deleteOpen}
+        anchorEl={deleteEl}
+        onClose={handleDeleteClose}
+        onDeleteConfirm={onDeleteConfirm}
+      />
       <Box sx={{ overflow: 'auto', pb: 6 }}>
         {renderConsultations(consultations)}
       </Box>

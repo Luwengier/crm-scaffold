@@ -260,7 +260,7 @@ function ConsultationAccordion() {
           },
           '& .info-title': {
             fontWeight: 'bold',
-            color: (theme) => theme.palette.secondary.text,
+            color: (theme) => theme.palette.secondary.darkText,
           },
           '& .info-content': {
             fontWeight: 'bold',

@@ -38,6 +38,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     ...closedMixin(theme),
     '& .MuiDrawer-paper': {
       ...closedMixin(theme),
+      borderRight: 0,
       backgroundColor: '#fcfcfc',
     },
     '& .MuiListItemText-root': {
