@@ -179,6 +179,8 @@ function ConsultationAccordion() {
   return (
     <Box
       sx={{
+        py: { xs: 2, sm: 5 },
+        px: { xs: 2, sm: 4 },
         '& .MuiAccordion-root': {
           overflow: 'auto',
           border: `1px solid ${theme.palette.divider}`,

@@ -20,7 +20,7 @@ const getDesignTokens = (mode) => ({
     secondary: {
       bg: '#fff8df',
       main: amber['A200'],
-      text: amber[300],
+      text: '#ffdc6b',
       darkText: amber[500],
     },
     info: {

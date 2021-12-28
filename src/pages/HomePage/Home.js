@@ -26,7 +26,12 @@ export default function Home() {
   const [value, setValue] = React.useState(new Date())
 
   return (
-    <React.Fragment>
+    <Box
+      sx={{
+        py: { xs: 2, sm: 5 },
+        px: { xs: 2, sm: 4 },
+      }}
+    >
       <ContentSkeleton displayNumber={18} />
       <DatePicker
         views={['year', 'month', 'day']}
@@ -37,7 +42,7 @@ export default function Home() {
         onChange={setValue}
         renderInput={(params) => <TextField {...params} helperText={null} />}
       />
-    </React.Fragment>
+    </Box>
   )
 }
 

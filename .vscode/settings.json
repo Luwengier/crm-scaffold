@@ -1,7 +1,10 @@
 {
   "cSpell.ignoreWords": [
     "Audiotrack",
+    "Milli",
     "Roboto",
-    "bgcolor"
+    "bgcolor",
+    "datetime",
+    "wMilli"
   ]
 }

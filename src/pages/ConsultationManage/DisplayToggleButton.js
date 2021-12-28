@@ -14,7 +14,7 @@ function DisplayToggleButton(props) {
       sx={{
         '& .MuiToggleButton-root': {
           py: 0.5,
-          px: 1.5,
+          px: 2,
         },
       }}
     >

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useTheme } from '@mui/material/styles'
+import { format } from 'date-fns'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
@@ -51,10 +52,26 @@ function ConsultationMange() {
   const [deleteEl, setDeleteEl] = useState(null)
   const [selected, setSelected] = useState('')
 
-
   useEffect(() => {
     setConsultations(insertIsExpanded(dummyData))
   }, [])
+
+  const onRemindTimeChange = e => {
+    const newEditingItem = {
+      ...editingItem,
+      [e.target.name]: new Date(e.target.value).getTime()
+    }
+    setEditingItem(newEditingItem)
+  }
+
+  const formatRemindTime = inputTime => {
+    const formatTime = inputTime && format(new Date(inputTime), "yyyy-MM-dd'T'hh:mm")
+    return formatTime
+  }
+
+  const filteredData = useMemo(() => {
+    return consultations ? filterDate(consultations, selected) : []
+  }, [consultations, selected])
 
   const onExpandedChange = (id, isEditing) => (event, isExpanded) => {
     const newConsultations = consultations.map(consultation => {
@@ -138,8 +155,7 @@ function ConsultationMange() {
       return consultation.id === editingItem.id
         ? { ...consultation, ...editingItem }
         : consultation
-    }
-    )
+    })
     setConsultations(newConsultations)
     setEditingItem({})
   }
@@ -184,13 +200,60 @@ function ConsultationMange() {
     }
   }
 
+  const renderDateGroup = (item, isCompleted, isEditing) => {
+    if (isCompleted) {
+      return (
+        <div className="record-date">
+          <span className="obvious">完成時間 :&nbsp;</span>
+          <span className="obvious">{item.completedAt}</span>
+        </div>
+      )
+    } else if (isEditing) {
+      return (
+        <React.Fragment>
+          <div className="remind-date">
+            <TimerOutlinedIcon fontSize="small" />
+            <span>提醒時間 :&nbsp;</span>
+            <input
+              type="datetime-local"
+              name="remindStartTime"
+              value={formatRemindTime(editingItem.remindStartTime) || ''}
+              onChange={onRemindTimeChange}
+            />
+            <span>&nbsp;-&nbsp;</span>
+            <input type="datetime-local" />
+          </div>
+        </React.Fragment>
+      )
+    } else {
+      return (
+        <React.Fragment>
+          <div className="record-date">
+            <RateReviewOutlinedIcon fontSize="small" />
+            <span>紀錄時間 :&nbsp;</span>
+            <span>2021/08/10</span>
+          </div>
+          <span>|</span>
+          <div className="remind-date">
+            <TimerOutlinedIcon fontSize="small" />
+            <span>提醒時間 :&nbsp;</span>
+            <span className="obvious">2021/08/31 下午 03:00</span>
+            <span>&nbsp;-&nbsp;</span>
+            <span className="obvious">2021/09/01 下午 06:00</span>
+          </div>
+        </React.Fragment>
+      )
+    }
+  }
+
   const renderConsultations = data => {
-    return data && filterDate(data, selected).map((item, index) => {
+    return data.map((item, index) => {
       const isCompleted = item.isCompleted ? ' completed' : ''
       const isEditing = (editingItem.id === item.id) && !item.isCompleted ? ' editing' : ''
 
       return (
         <div className={`accordion-wrapper${isCompleted}`} key={item.id}>
+
           <Accordion
             disableGutters
             elevation={0}
@@ -220,8 +283,6 @@ function ConsultationMange() {
                             >
                               <option value="">負責人</option>
                               {renderPrincipalOptions(principals)}
-                              {/* <option value="1">林愈梅</option>
-                              <option value="2">沈明傑</option> */}
                             </select>
                           </div>
 
@@ -296,7 +357,7 @@ function ConsultationMange() {
             <AccordionDetails className={isCompleted}>
               {isEditing
                 ? (
-                  <TextareaAutosize className="text-area" maxRows={4} minRows={4} defaultValue={item.text} />
+                  <TextareaAutosize className="text-area" maxRows={10} minRows={4} defaultValue={item.text} />
                 )
                 : (
                   <div className="accordion-content">
@@ -306,6 +367,7 @@ function ConsultationMange() {
               }
             </AccordionDetails>
           </Accordion>
+
           <div className={`accordion-actions${isCompleted}`}>
 
             <Stack className="chip-wrapper" direction="row" spacing={1}>
@@ -314,32 +376,8 @@ function ConsultationMange() {
               <Chip className={isCompleted ? 'fade' : ''} label="派發工單" size="small" />
             </Stack>
 
-            <div className="data-group">
-              {isCompleted
-                ? (
-                  <div className="record-date">
-                    <span className="obvious">完成時間 :&nbsp;</span>
-                    <span className="obvious">{item.completedAt}</span>
-                  </div>
-                )
-                : (
-                  <React.Fragment>
-                    <div className="record-date">
-                      <RateReviewOutlinedIcon fontSize="small" />
-                      <span>紀錄時間 :&nbsp;</span>
-                      <span>2021/08/10</span>
-                    </div>
-                    <span>|</span>
-                    <div className="remind-date">
-                      <TimerOutlinedIcon fontSize="small" />
-                      <span>提醒時間 :&nbsp;</span>
-                      <span className="obvious">2021/08/31 下午 03:00</span>
-                      <span>&nbsp;-&nbsp;</span>
-                      <span className="obvious">2021/09/01 下午 06:00</span>
-                    </div>
-                  </React.Fragment>
-                )
-              }
+            <div className="date-group">
+              {renderDateGroup(item, isCompleted, isEditing)}
             </div>
           </div>
         </div>
@@ -353,11 +391,12 @@ function ConsultationMange() {
   return (
     <Box
       sx={{
+        py: { xs: 2, sm: 5 },
+        px: { xs: 2, sm: 4 },
         '& .accordion-wrapper': {
           overflow: 'auto',
           borderRadius: '0.5rem',
           border: `1px solid ${theme.palette.divider}`,
-          bt: 0,
           mb: 3,
         },
         '& .MuiAccordion-root': {
@@ -460,6 +499,7 @@ function ConsultationMange() {
           fontSize: '1rem',
           lineHeight: 1.5,
           letterSpacing: '0.00938em',
+          fontFamily: 'Roboto',
         },
         '& .accordion-actions': {
           display: 'flex',
@@ -467,7 +507,8 @@ function ConsultationMange() {
           bgcolor: 'grey.100',
         },
         '& .chip-wrapper': {
-          p: 1,
+          py: 1,
+          px: 2.5,
           '& .MuiChip-root': {
             bgcolor: 'text.mid',
           },
@@ -481,7 +522,7 @@ function ConsultationMange() {
           '& .blue': { bgcolor: 'jewelry.blue' },
           '& .fadeBlue': { bgcolor: 'jewelry.fadeBlue' },
         },
-        '& .data-group': {
+        '& .date-group': {
           display: 'flex',
           alignItems: 'center',
           color: 'text.third',
@@ -490,6 +531,12 @@ function ConsultationMange() {
             display: 'inline-flex',
             alignItems: 'center',
             px: 1.5,
+          },
+          '& input': {
+            pl: 1,
+            width: '14rem',
+            border: '1px solid #cccccc',
+            borderRadius: '0.25em',
           },
           '& svg': { mr: 0.75 },
           '& span': { display: 'inline-block' },
@@ -543,7 +590,7 @@ function ConsultationMange() {
         onDeleteConfirm={onDeleteConfirm}
       />
       <Box sx={{ overflow: 'auto', pb: 6 }}>
-        {renderConsultations(consultations)}
+        {renderConsultations(filteredData)}
       </Box>
     </Box>
   )

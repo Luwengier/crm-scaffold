@@ -16,7 +16,7 @@ const App = () => {
         <MiniDrawer />
         <ItineraryReminder />
 
-        <Box component="main" sx={{ flexGrow: 1, p: 2, px: { sm: 4 }, minWidth: 0 }}>
+        <Box component="main" sx={{ flexGrow: 1, minWidth: 0 }}>
           <Suspense fallback={null}>
             <Routes>
               <Route exact path="/" element={<Home />} />
