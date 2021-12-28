@@ -7,21 +7,29 @@ const getSerialText = numb => {
 
 export const dummyData = [
   {
-    id: 'c1',
+    id: 't1',
     isCompleted: false,
     text: getSerialText(1),
     principal: {
       id: 'p1',
       name: '金小城',
     },
+    category: {
+      id: 't1',
+      name: '商品諮詢',
+    },
   },
   {
-    id: 'c2',
+    id: 't2',
     isCompleted: false,
     text: getSerialText(2),
     principal: {
       id: 'p2',
       name: '林昱梅',
+    },
+    category: {
+      id: 't2',
+      name: '客訴案件',
     },
   },
   {
@@ -33,6 +41,10 @@ export const dummyData = [
       id: 'p3',
       name: '沈明傑',
     },
+    category: {
+      id: 't1',
+      name: '商品諮詢',
+    },
   },
   {
     id: 'c4',
@@ -41,6 +53,10 @@ export const dummyData = [
     principal: {
       id: 'p1',
       name: '金小城',
+    },
+    category: {
+      id: 't2',
+      name: '客訴案件',
     },
   },
   {
@@ -52,6 +68,10 @@ export const dummyData = [
       id: 'p1',
       name: '金小城',
     },
+    category: {
+      id: 't1',
+      name: '商品諮詢',
+    },
   },
   {
     id: 'c6',
@@ -62,6 +82,10 @@ export const dummyData = [
       id: 'p2',
       name: '林昱梅',
     },
+    category: {
+      id: 't2',
+      name: '客訴案件',
+    },
   },
   {
     id: 'c7',
@@ -71,6 +95,24 @@ export const dummyData = [
     principal: {
       id: 'p1',
       name: '金小城',
+    },
+    category: {
+      id: 't1',
+      name: '商品諮詢',
+    },
+  },
+  {
+    id: 'c8',
+    isCompleted: true,
+    completedAt: '2021/09/02 下午 01:20',
+    text: getSerialText(8),
+    principal: {
+      id: 'p2',
+      name: '林昱梅',
+    },
+    category: {
+      id: 't2',
+      name: '客訴案件',
     },
   },
 ]
@@ -94,6 +136,22 @@ export const principalMapping = {
   'p1': '金小城',
   'p2': '林昱梅',
   'p3': '沈明傑',
+}
+
+export const consultationCategories = [
+  {
+    id: 't1',
+    name: '商品諮詢',
+  },
+  {
+    id: 't2',
+    name: '客訴案件',
+  },
+]
+
+export const consultationMapping = {
+  't1': '商品諮詢',
+  't2': '客訴案件',
 }
 
 

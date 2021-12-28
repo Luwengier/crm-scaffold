@@ -24,10 +24,10 @@ import MemberInfo from '../../components/MemberInfo'
 import DisplayToggleButton from './DisplayToggleButton'
 import CreatePopover from './CreatePopover'
 import DeletePopover from './DeletePopover'
-import { dummyData, principals, principalMapping } from './dummyData'
+import { dummyData, principals, principalMapping, consultationCategories, consultationMapping } from './dummyData'
 
 const insertIsExpanded = consultations => {
-  return consultations.map(consultation => ({ ...consultation, isExpanded: true }))
+  return consultations.map(consultation => ({ ...consultation, isExpanded: consultation.isCompleted ? false : true }))
 }
 
 const getLocaleDateString = () => {
@@ -52,22 +52,12 @@ function ConsultationMange() {
   const [deleteEl, setDeleteEl] = useState(null)
   const [selected, setSelected] = useState('')
 
+  console.log(editingItem)
+
   useEffect(() => {
     setConsultations(insertIsExpanded(dummyData))
   }, [])
 
-  const onRemindTimeChange = e => {
-    const newEditingItem = {
-      ...editingItem,
-      [e.target.name]: new Date(e.target.value).getTime()
-    }
-    setEditingItem(newEditingItem)
-  }
-
-  const formatRemindTime = inputTime => {
-    const formatTime = inputTime && format(new Date(inputTime), "yyyy-MM-dd'T'hh:mm")
-    return formatTime
-  }
 
   const filteredData = useMemo(() => {
     return consultations ? filterDate(consultations, selected) : []
@@ -94,6 +84,7 @@ function ConsultationMange() {
           ...consultation,
           ...(!consultation.isCompleted && { completedAt: getLocaleDateString() }),
           isCompleted: !consultation.isCompleted,
+          isExpanded: consultation.isCompleted,
         }
         : consultation
     })
@@ -136,18 +127,6 @@ function ConsultationMange() {
     setEditingItem({})
   }
 
-  const onPrincipalChange = e => {
-    const newEditingItem = {
-      ...editingItem,
-      principal: {
-        ...editingItem.principal,
-        id: e.target.value,
-        name: principalMapping[e.target.value]
-      }
-    }
-    setEditingItem(newEditingItem)
-  }
-
   const onEditConfirm = e => {
     // 需要 stopPropagation 否則 setConsultations 會被 onExpandedChange 裡的覆蓋
     e.stopPropagation()
@@ -160,12 +139,65 @@ function ConsultationMange() {
     setEditingItem({})
   }
 
+  const onPrincipalChange = e => {
+    const newEditingItem = {
+      ...editingItem,
+      principal: {
+        ...editingItem.principal,
+        id: e.target.value,
+        name: principalMapping[e.target.value]
+      }
+    }
+    setEditingItem(newEditingItem)
+  }
+
+  const onCategoryChange = e => {
+    const newEditingItem = {
+      ...editingItem,
+      category: {
+        ...editingItem.category,
+        id: e.target.value,
+        name: consultationMapping[e.target.value]
+      }
+    }
+    setEditingItem(newEditingItem)
+  }
+
   const renderPrincipalOptions = principals => {
     return principals.map(principal => (
       <option value={principal.id} key={principal.id}>
         {principal.name}
       </option>
     ))
+  }
+
+  const renderCategoryOptions = categories => {
+    return categories.map(category => (
+      <option value={category.id} key={category.id}>
+        {category.name}
+      </option>
+    ))
+  }
+
+  const onTextChange = e => {
+    const newEditingItem = {
+      ...editingItem,
+      text: e.target.value,
+    }
+    setEditingItem(newEditingItem)
+  }
+
+  const onRemindTimeChange = e => {
+    const newEditingItem = {
+      ...editingItem,
+      [e.target.name]: new Date(e.target.value).getTime()
+    }
+    setEditingItem(newEditingItem)
+  }
+
+  const formatRemindTime = inputTime => {
+    const formatTime = inputTime && format(new Date(inputTime), "yyyy-MM-dd'T'hh:mm")
+    return formatTime
   }
 
 
@@ -290,9 +322,12 @@ function ConsultationMange() {
                             <Typography className="info-title" variant="subtitle1" component="span">
                               轉派給 :&nbsp;
                             </Typography>
-                            <select>
-                              <option value="">商品諮詢</option>
-                              <option value="1">客訴案件</option>
+                            <select
+                              value={(editingItem.category && editingItem.category.id) || ''}
+                              onChange={onCategoryChange}
+                            >
+                              <option value="">選擇類別</option>
+                              {renderCategoryOptions(consultationCategories)}
                             </select>
                           </div>
 
@@ -322,7 +357,7 @@ function ConsultationMange() {
                               類別 :&nbsp;
                             </Typography>
                             <Typography className="info-content" variant="subtitle1" component="span">
-                              商品諮詢
+                              {item.category && item.category.name}
                             </Typography>
                           </div>
 
@@ -357,7 +392,13 @@ function ConsultationMange() {
             <AccordionDetails className={isCompleted}>
               {isEditing
                 ? (
-                  <TextareaAutosize className="text-area" maxRows={10} minRows={4} defaultValue={item.text} />
+                  <TextareaAutosize
+                    className="text-area"
+                    maxRows={10}
+                    minRows={4}
+                    value={editingItem.text}
+                    onChange={onTextChange}
+                  />
                 )
                 : (
                   <div className="accordion-content">
