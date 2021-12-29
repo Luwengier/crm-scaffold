@@ -28,6 +28,10 @@ const getDesignTokens = (mode) => ({
       bg: '#edf8f9',
       main: cyan[500],
     },
+    background: {
+      light: '#fcfcfc',
+      paper: grey[50],
+    },
     ...(mode === 'dark' && {
       background: {
         default: grey[900],
@@ -42,19 +46,23 @@ const getDesignTokens = (mode) => ({
           third: grey[700],
           mid: grey[500],
           fade: grey[300],
+          lighter: grey[200],
           light: grey[50],
         }
         : {
           primary: '#fff',
           secondary: grey[100],
           third: grey[200],
+          lighter: grey[800],
           light: grey[900],
         }),
     },
     jewelry: {
       red: '#ff756a',
       fadeRed: '#f1cecc',
+      darkBlue: '#289ad9',
       blue: '#57c3ff',
+      lightBlue: '#a5dfff',
       fadeBlue: '#cfe2ec',
       // #ff8d6b
     },

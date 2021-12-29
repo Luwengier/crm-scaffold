@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { TransitionGroup } from 'react-transition-group'
 import { useTheme } from '@mui/material/styles'
 import { format } from 'date-fns'
+import Collapse from '@mui/material/Collapse';
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
@@ -52,12 +54,9 @@ function ConsultationMange() {
   const [deleteEl, setDeleteEl] = useState(null)
   const [selected, setSelected] = useState('')
 
-  console.log(editingItem)
-
   useEffect(() => {
     setConsultations(insertIsExpanded(dummyData))
   }, [])
-
 
   const filteredData = useMemo(() => {
     return consultations ? filterDate(consultations, selected) : []
@@ -284,144 +283,147 @@ function ConsultationMange() {
       const isEditing = (editingItem.id === item.id) && !item.isCompleted ? ' editing' : ''
 
       return (
-        <div className={`accordion-wrapper${isCompleted}`} key={item.id}>
+        <Collapse key={item.id} timeout={500}>
+          <div className={`accordion-wrapper${isCompleted}`}>
 
-          <Accordion
-            disableGutters
-            elevation={0}
-            expanded={item.isExpanded}
-            onChange={onExpandedChange(item.id, isEditing)}
-            // defaultExpanded={!Boolean(isCompleted)}
-            key={index}
-          >
-            <AccordionSummary className={`${isCompleted}${isEditing}`} expandIcon={<ArrowForwardIosSharpIcon />}>
-              <Grid container className="consultation-info">
+            <Accordion
+              disableGutters
+              elevation={0}
+              expanded={item.isExpanded}
+              onChange={onExpandedChange(item.id, isEditing)}
+              // defaultExpanded={!Boolean(isCompleted)}
+              key={index}
+            >
+              <AccordionSummary className={`${isCompleted}${isEditing}`} expandIcon={<ArrowForwardIosSharpIcon />}>
+                <Grid container className="consultation-info">
 
-                <Grid item className="info-group">
-                  <div className="serial-sec">
-                    {index + 1}
-                  </div>
-                  <div className="info-sec-wrapper">
-                    {isEditing
-                      ? (
-                        <React.Fragment>
-                          <div className="info-sec">
-                            <Typography className="info-title" variant="subtitle1" component="span">
-                              轉派給 :&nbsp;
-                            </Typography>
-                            <select
-                              value={(editingItem.principal && editingItem.principal.id) || ''}
-                              onChange={onPrincipalChange}
-                            >
-                              <option value="">負責人</option>
-                              {renderPrincipalOptions(principals)}
-                            </select>
-                          </div>
+                  <Grid item className="info-group">
+                    <div className="serial-sec">
+                      {index + 1}
+                    </div>
+                    <div className="info-sec-wrapper">
+                      {isEditing
+                        ? (
+                          <React.Fragment>
+                            <div className="info-sec">
+                              <Typography className="info-title" variant="subtitle1" component="span">
+                                轉派給 :&nbsp;
+                              </Typography>
+                              <select
+                                value={(editingItem.principal && editingItem.principal.id) || ''}
+                                onChange={onPrincipalChange}
+                              >
+                                <option value="">負責人</option>
+                                {renderPrincipalOptions(principals)}
+                              </select>
+                            </div>
 
-                          <div className="info-sec">
-                            <Typography className="info-title" variant="subtitle1" component="span">
-                              轉派給 :&nbsp;
-                            </Typography>
-                            <select
-                              value={(editingItem.category && editingItem.category.id) || ''}
-                              onChange={onCategoryChange}
-                            >
-                              <option value="">選擇類別</option>
-                              {renderCategoryOptions(consultationCategories)}
-                            </select>
-                          </div>
+                            <div className="info-sec">
+                              <Typography className="info-title" variant="subtitle1" component="span">
+                                類別 :&nbsp;
+                              </Typography>
+                              <select
+                                value={(editingItem.category && editingItem.category.id) || ''}
+                                onChange={onCategoryChange}
+                              >
+                                <option value="">選擇類別</option>
+                                {renderCategoryOptions(consultationCategories)}
+                              </select>
+                            </div>
 
-                          <div className="info-sec">
-                            <Typography className="info-title" variant="subtitle1" component="span">
-                              記錄人員 :&nbsp;
-                            </Typography>
-                            <Typography className="info-content" variant="subtitle1" component="span">
-                              王小美
-                            </Typography>
-                          </div>
-                        </React.Fragment>
-                      )
-                      : (
-                        <React.Fragment>
-                          <div className="info-sec">
-                            <Typography className="info-title" variant="subtitle1" component="span">
-                              負責人 :&nbsp;
-                            </Typography>
-                            <Typography className="info-content" variant="subtitle1" component="span">
-                              {item.principal && item.principal.name}
-                            </Typography>
-                          </div>
+                            <div className="info-sec">
+                              <Typography className="info-title" variant="subtitle1" component="span">
+                                記錄人員 :&nbsp;
+                              </Typography>
+                              <Typography className="info-content" variant="subtitle1" component="span">
+                                王小美
+                              </Typography>
+                            </div>
+                          </React.Fragment>
+                        )
+                        : (
+                          <React.Fragment>
+                            <div className="info-sec">
+                              <Typography className="info-title" variant="subtitle1" component="span">
+                                負責人 :&nbsp;
+                              </Typography>
+                              <Typography className="info-content" variant="subtitle1" component="span">
+                                {item.principal && item.principal.name}
+                              </Typography>
+                            </div>
 
-                          <div className="info-sec">
-                            <Typography className="info-title" variant="subtitle1" component="span">
-                              類別 :&nbsp;
-                            </Typography>
-                            <Typography className="info-content" variant="subtitle1" component="span">
-                              {item.category && item.category.name}
-                            </Typography>
-                          </div>
+                            <div className="info-sec">
+                              <Typography className="info-title" variant="subtitle1" component="span">
+                                類別 :&nbsp;
+                              </Typography>
+                              <Typography className="info-content" variant="subtitle1" component="span">
+                                {item.category && item.category.name}
+                              </Typography>
+                            </div>
 
-                          <div className="info-sec">
-                            <Typography className="info-title" variant="subtitle1" component="span">
-                              記錄人員 :&nbsp;
-                            </Typography>
-                            <Typography className="info-content" variant="subtitle1" component="span">
-                              王小美
-                            </Typography>
-                          </div>
+                            <div className="info-sec">
+                              <Typography className="info-title" variant="subtitle1" component="span">
+                                記錄人員 :&nbsp;
+                              </Typography>
+                              <Typography className="info-content" variant="subtitle1" component="span">
+                                王小美
+                              </Typography>
+                            </div>
 
-                          <div className="info-sec">
-                            <Typography className="info-title" variant="subtitle1" component="span">
-                              {isCompleted ? '已完成' : '未完成'}
-                            </Typography>
-                          </div>
-                        </React.Fragment>
-                      )
-                    }
+                            <div className="info-sec">
+                              <Typography className="info-title" variant="subtitle1" component="span">
+                                {isCompleted ? '已完成' : '未完成'}
+                              </Typography>
+                            </div>
+                          </React.Fragment>
+                        )
+                      }
 
-                  </div>
+                    </div>
+                  </Grid>
+
+                  <Grid item className="icon-group">
+                    {renderIconButton(item, isCompleted, isEditing)}
+                  </Grid>
+
                 </Grid>
+              </AccordionSummary>
 
-                <Grid item className="icon-group">
-                  {renderIconButton(item, isCompleted, isEditing)}
-                </Grid>
+              <AccordionDetails className={isCompleted}>
+                {isEditing
+                  ? (
+                    <TextareaAutosize
+                      className="text-area"
+                      maxRows={10}
+                      minRows={4}
+                      value={editingItem.text}
+                      onChange={onTextChange}
+                    />
+                  )
+                  : (
+                    <div className="accordion-content">
+                      {item.text}
+                    </div>
+                  )
+                }
+              </AccordionDetails>
+            </Accordion>
 
-              </Grid>
-            </AccordionSummary>
+            <div className={`accordion-actions${isCompleted}`}>
 
-            <AccordionDetails className={isCompleted}>
-              {isEditing
-                ? (
-                  <TextareaAutosize
-                    className="text-area"
-                    maxRows={10}
-                    minRows={4}
-                    value={editingItem.text}
-                    onChange={onTextChange}
-                  />
-                )
-                : (
-                  <div className="accordion-content">
-                    {item.text}
-                  </div>
-                )
-              }
-            </AccordionDetails>
-          </Accordion>
+              <Stack className="chip-wrapper" direction="row" spacing={1}>
+                <Chip className={isCompleted ? 'fadeRed' : 'red'} label="緊急" size="small" />
+                <Chip className={isCompleted ? 'fadeBlue' : 'blue'} label="重要" size="small" />
+                <Chip className={isCompleted ? 'fade' : ''} label="派發工單" size="small" />
+              </Stack>
 
-          <div className={`accordion-actions${isCompleted}`}>
-
-            <Stack className="chip-wrapper" direction="row" spacing={1}>
-              <Chip className={isCompleted ? 'fadeRed' : 'red'} label="緊急" size="small" />
-              <Chip className={isCompleted ? 'fadeBlue' : 'blue'} label="重要" size="small" />
-              <Chip className={isCompleted ? 'fade' : ''} label="派發工單" size="small" />
-            </Stack>
-
-            <div className="date-group">
-              {renderDateGroup(item, isCompleted, isEditing)}
+              <div className="date-group">
+                {renderDateGroup(item, isCompleted, isEditing)}
+              </div>
             </div>
           </div>
-        </div>
+
+        </Collapse>
       )
     })
   }
@@ -432,7 +434,7 @@ function ConsultationMange() {
   return (
     <Box
       sx={{
-        py: { xs: 2, sm: 5 },
+        py: { xs: 2, sm: 3 },
         px: { xs: 2, sm: 4 },
         '& .accordion-wrapper': {
           overflow: 'auto',
@@ -551,11 +553,11 @@ function ConsultationMange() {
           py: 1,
           px: 2.5,
           '& .MuiChip-root': {
+            color: 'text.light',
             bgcolor: 'text.mid',
           },
           '& .MuiChip-label': {
             px: 2,
-            color: 'text.light',
           },
           '& .fade': { bgcolor: 'text.fade' },
           '& .red': { bgcolor: 'jewelry.red' },
@@ -587,9 +589,9 @@ function ConsultationMange() {
         },
       }}
     >
-      {/* <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', pb: 1 }}>
+      <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold', pb: 1, color: 'text.secondary' }}>
         諮詢管理
-      </Typography> */}
+      </Typography>
       <MemberInfo sx={{ mb: 1 }} />
       <Box
         sx={{
@@ -631,7 +633,9 @@ function ConsultationMange() {
         onDeleteConfirm={onDeleteConfirm}
       />
       <Box sx={{ overflow: 'auto', pb: 6 }}>
-        {renderConsultations(filteredData)}
+        <TransitionGroup>
+          {renderConsultations(filteredData)}
+        </TransitionGroup>
       </Box>
     </Box>
   )

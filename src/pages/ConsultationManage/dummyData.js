@@ -18,6 +18,28 @@ export const dummyData = [
       id: 't1',
       name: '商品諮詢',
     },
+    propertyTags: [
+      {
+        id: 'pt1',
+        name: '緊急',
+      },
+      {
+        id: 'pt2',
+        name: '重要',
+      },
+      {
+        id: 'pt3',
+        name: '一般',
+      },
+      {
+        id: 'pt4',
+        name: '次要',
+      },
+      {
+        id: 'cdf556',
+        name: '派發工單',
+      },
+    ],
   },
   {
     id: 't2',
@@ -153,6 +175,21 @@ export const consultationMapping = {
   't1': '商品諮詢',
   't2': '客訴案件',
 }
+
+export const propertyTags = [
+  {
+    id: 'cdf556',
+    name: '派發工單',
+  },
+  {
+    id: 'cgt67',
+    name: '自訂標籤',
+  },
+  {
+    id: 'bvd234',
+    name: '自訂',
+  },
+]
 
 
 
