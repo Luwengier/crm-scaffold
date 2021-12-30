@@ -21,23 +21,19 @@ export const dummyData = [
     propertyTags: [
       {
         id: 'pt1',
-        name: '緊急',
+        name: '急',
       },
       {
         id: 'pt2',
         name: '重要',
       },
       {
-        id: 'pt3',
-        name: '一般',
-      },
-      {
-        id: 'pt4',
-        name: '次要',
-      },
-      {
         id: 'cdf556',
         name: '派發工單',
+      },
+      {
+        id: 'bvd234',
+        name: '自訂',
       },
     ],
   },
@@ -53,10 +49,24 @@ export const dummyData = [
       id: 't2',
       name: '客訴案件',
     },
+    propertyTags: [
+      {
+        id: 'pt1',
+        name: '急',
+      },
+      {
+        id: 'pt3',
+        name: '一般',
+      },
+      {
+        id: 'cdf556',
+        name: '派發工單',
+      },
+    ],
   },
   {
     id: 'c3',
-    isCompleted: true,
+    isCompleted: false,
     completedAt: '2021/09/05 下午 04:30',
     text: getSerialText(3),
     principal: {
@@ -67,6 +77,16 @@ export const dummyData = [
       id: 't1',
       name: '商品諮詢',
     },
+    propertyTags: [
+      {
+        id: 'pt4',
+        name: '次要',
+      },
+      {
+        id: 'bvd234',
+        name: '自訂',
+      },
+    ],
   },
   {
     id: 'c4',
@@ -80,6 +100,16 @@ export const dummyData = [
       id: 't2',
       name: '客訴案件',
     },
+    propertyTags: [
+      {
+        id: 'pt3',
+        name: '一般',
+      },
+      {
+        id: 'cdf556',
+        name: '派發工單',
+      },
+    ],
   },
   {
     id: 'c5',
@@ -94,6 +124,20 @@ export const dummyData = [
       id: 't1',
       name: '商品諮詢',
     },
+    propertyTags: [
+      {
+        id: 'pt1',
+        name: '急',
+      },
+      {
+        id: 'pt3',
+        name: '一般',
+      },
+      {
+        id: 'cdf556',
+        name: '派發工單',
+      },
+    ],
   },
   {
     id: 'c6',
@@ -108,6 +152,20 @@ export const dummyData = [
       id: 't2',
       name: '客訴案件',
     },
+    propertyTags: [
+      {
+        id: 'pt1',
+        name: '急',
+      },
+      {
+        id: 'pt3',
+        name: '一般',
+      },
+      {
+        id: 'bvd234',
+        name: '自訂',
+      },
+    ],
   },
   {
     id: 'c7',
@@ -122,6 +180,16 @@ export const dummyData = [
       id: 't1',
       name: '商品諮詢',
     },
+    propertyTags: [
+      {
+        id: 'pt4',
+        name: '次要',
+      },
+      {
+        id: 'cdf556',
+        name: '派發工單',
+      },
+    ],
   },
   {
     id: 'c8',
@@ -136,6 +204,16 @@ export const dummyData = [
       id: 't2',
       name: '客訴案件',
     },
+    propertyTags: [
+      {
+        id: 'pt3',
+        name: '一般',
+      },
+      {
+        id: 'cdf556',
+        name: '派發工單',
+      },
+    ],
   },
 ]
 
@@ -176,7 +254,7 @@ export const consultationMapping = {
   't2': '客訴案件',
 }
 
-export const propertyTags = [
+export const minorPropertyTags = [
   {
     id: 'cdf556',
     name: '派發工單',
@@ -191,5 +269,18 @@ export const propertyTags = [
   },
 ]
 
+export const IMPORTANT_LEVEL_IDS = ['pt2', 'pt3', 'pt4']
+
+export const IMPORTANT_CLASS_MAPPING = {
+  'pt2': 'dark-blue',
+  'pt3': 'blue',
+  'pt4': 'light-blue'
+}
+
+export const IMPORTANT_LEVELS = [
+  { id: 'pt2', name: '重要' },
+  { id: 'pt3', name: '一般' },
+  { id: 'pt4', name: '次要' },
+]
 
 

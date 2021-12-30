@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { TransitionGroup } from 'react-transition-group'
 import { useTheme } from '@mui/material/styles'
 import { format } from 'date-fns'
-import Collapse from '@mui/material/Collapse';
+import Zoom from '@mui/material/Zoom';
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
@@ -26,7 +26,8 @@ import MemberInfo from '../../components/MemberInfo'
 import DisplayToggleButton from './DisplayToggleButton'
 import CreatePopover from './CreatePopover'
 import DeletePopover from './DeletePopover'
-import { dummyData, principals, principalMapping, consultationCategories, consultationMapping } from './dummyData'
+import { dummyData, principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_CLASS_MAPPING, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
+
 
 const insertIsExpanded = consultations => {
   return consultations.map(consultation => ({ ...consultation, isExpanded: consultation.isCompleted ? false : true }))
@@ -199,6 +200,25 @@ function ConsultationMange() {
     return formatTime
   }
 
+  const onTagToggle = targetTag => () => {
+    setEditingItem((prev) => ({
+      ...prev,
+      propertyTags: prev.propertyTags.some(item => item.id === targetTag.id)
+        ? prev.propertyTags.filter(item => item.id !== targetTag.id)
+        : [...prev.propertyTags, targetTag]
+    }))
+  }
+
+  const onImportantLevelRadio = targetTag => () => {
+    if (editingItem.propertyTags.some(item => item.id === targetTag.id)) return
+    const clearedPropertyTag = editingItem.propertyTags.filter(item => !IMPORTANT_LEVEL_IDS.includes(item.id))
+
+    setEditingItem((prev) => ({
+      ...prev,
+      propertyTags: [...clearedPropertyTag, targetTag]
+    }))
+  }
+
 
   const renderIconButton = (item, isCompleted, isEditing) => {
     if (isCompleted) {
@@ -229,6 +249,89 @@ function ConsultationMange() {
         </React.Fragment>
       )
     }
+  }
+
+  const renderChipWrapper = (item, isCompleted, isEditing) => {
+    if (isEditing) {
+      return (
+        <Stack className="chip-wrapper" direction="row" spacing={1}>
+          {renderTagBtns()}
+        </Stack>
+      )
+    } else {
+      return (
+        <Stack className={`chip-wrapper${isCompleted}`} direction="row" spacing={1}>
+          {renderTags(item)}
+        </Stack>
+      )
+    }
+  }
+
+  const judgeActive = targetTag => {
+    return editingItem.propertyTags.some(item => item.id === targetTag.id) ? '' : 'negative'
+  }
+
+  const renderTags = consultation => {
+    let minors = []
+    let isUrgent = false
+    let importantLevel = null
+
+    consultation.propertyTags.forEach(item => {
+      if (item.id === 'pt1') {
+        isUrgent = true
+      } else if (['pt2', 'pt3', 'pt4'].includes(item.id)) {
+        importantLevel = item
+      } else {
+        minors.push(item)
+      }
+    })
+
+    const minorTags = minors.map(minor => (
+      <Chip key={minor.id} label={minor.name} size="small" />
+    ))
+
+    return (
+      <React.Fragment>
+        <Chip label="急" className={isUrgent ? 'red' : 'plain'} size="small" />
+        <Chip label={importantLevel.name} className={IMPORTANT_CLASS_MAPPING[importantLevel.id]} size="small" />
+        {minorTags}
+      </React.Fragment>
+    )
+  }
+
+  const renderTagBtns = consultation => {
+    const minorTagBtns = minorPropertyTags.map(propertyTag => {
+      const active = editingItem.propertyTags.some(item => item.id === propertyTag.id)
+        ? ''
+        : 'negative'
+      return (
+        <Chip className={active} key={propertyTag.id} label={propertyTag.name} size="small" onClick={onTagToggle(propertyTag)} />
+      )
+    })
+
+    return (
+      <React.Fragment>
+        <Chip label="急" size="small"
+          onClick={onTagToggle({ id: 'pt1', name: '急' })}
+          className={`red ${judgeActive({ id: 'pt1', name: '急' })}`}
+        />
+        <Box className="toggle-wrapper">
+          <Chip label="重要" size="small"
+            onClick={onImportantLevelRadio(IMPORTANT_LEVELS[0])}
+            className={`dark-blue ${judgeActive(IMPORTANT_LEVELS[0])}`}
+          />
+          <Chip label="一般" size="small"
+            onClick={onImportantLevelRadio(IMPORTANT_LEVELS[1])}
+            className={`blue ${judgeActive(IMPORTANT_LEVELS[1])}`}
+          />
+          <Chip label="次要" size="small"
+            onClick={onImportantLevelRadio(IMPORTANT_LEVELS[2])}
+            className={`light-blue ${judgeActive(IMPORTANT_LEVELS[2])}`}
+          />
+        </Box>
+        {minorTagBtns}
+      </React.Fragment>
+    )
   }
 
   const renderDateGroup = (item, isCompleted, isEditing) => {
@@ -283,7 +386,7 @@ function ConsultationMange() {
       const isEditing = (editingItem.id === item.id) && !item.isCompleted ? ' editing' : ''
 
       return (
-        <Collapse key={item.id} timeout={500}>
+        <Zoom key={item.id} timeout={500}>
           <div className={`accordion-wrapper${isCompleted}`}>
 
             <Accordion
@@ -409,13 +512,9 @@ function ConsultationMange() {
               </AccordionDetails>
             </Accordion>
 
-            <div className={`accordion-actions${isCompleted}`}>
+            <div className={`accordion-actions`}>
 
-              <Stack className="chip-wrapper" direction="row" spacing={1}>
-                <Chip className={isCompleted ? 'fadeRed' : 'red'} label="緊急" size="small" />
-                <Chip className={isCompleted ? 'fadeBlue' : 'blue'} label="重要" size="small" />
-                <Chip className={isCompleted ? 'fade' : ''} label="派發工單" size="small" />
-              </Stack>
+              {renderChipWrapper(item, isCompleted, isEditing)}
 
               <div className="date-group">
                 {renderDateGroup(item, isCompleted, isEditing)}
@@ -423,7 +522,7 @@ function ConsultationMange() {
             </div>
           </div>
 
-        </Collapse>
+        </Zoom>
       )
     })
   }
@@ -473,9 +572,10 @@ function ConsultationMange() {
         '& .MuiAccordionDetails-root': {
           padding: 0,
           overflow: 'auto',
+          bgcolor: 'background.default',
           '&.completed': {
             color: 'text.disabled',
-            bgcolor: '#fcfcfc',
+            bgcolor: 'background.light',
           },
         },
 
@@ -549,21 +649,50 @@ function ConsultationMange() {
           justifyContent: 'space-between',
           bgcolor: 'grey.100',
         },
+        '& .toggle-wrapper': {
+          px: 0.5,
+          mx: 0.5,
+          borderRadius: '1rem',
+          border: `1px dashed ${theme.palette.text.mid}`,
+        },
         '& .chip-wrapper': {
-          py: 1,
           px: 2.5,
+          py: 0.5,
+          mx: -0.5,
           '& .MuiChip-root': {
+            mx: 0.5,
+            my: 0.5,
             color: 'text.light',
             bgcolor: 'text.mid',
           },
           '& .MuiChip-label': {
             px: 2,
           },
-          '& .fade': { bgcolor: 'text.fade' },
+          '& .plain': {
+            color: 'text.fade',
+            bgcolor: 'inherit',
+            border: `1px solid ${theme.palette.text.fade}`,
+          },
           '& .red': { bgcolor: 'jewelry.red' },
-          '& .fadeRed': { bgcolor: 'jewelry.fadeRed' },
           '& .blue': { bgcolor: 'jewelry.blue' },
-          '& .fadeBlue': { bgcolor: 'jewelry.fadeBlue' },
+          '& .dark-blue': { bgcolor: 'jewelry.darkBlue' },
+          '& .light-blue': { bgcolor: 'jewelry.lightBlue' },
+          '& .negative': {
+            color: 'text.primary',
+            bgcolor: 'text.lighter',
+          },
+        },
+        '& .chip-wrapper.completed': {
+          '& .MuiChip-root': { bgcolor: 'text.fade' },
+          '& .plain': {
+            color: 'text.fade',
+            bgcolor: 'inherit',
+            border: `1px solid ${theme.palette.text.fade}`,
+          },
+          '& .red': { bgcolor: 'jewelry.fadeRed' },
+          '& .blue': { bgcolor: 'jewelry.fadeBlue' },
+          '& .dark-blue': { bgcolor: 'jewelry.fadeDarkBlue' },
+          '& .light-blue': { bgcolor: 'jewelry.fadeLightBlue' },
         },
         '& .date-group': {
           display: 'flex',
@@ -624,7 +753,9 @@ function ConsultationMange() {
       <CreatePopover
         open={createOpen}
         anchorEl={anchorEl}
+        consultations={consultations}
         onClose={handleCreateClose}
+        setConsultations={setConsultations}
       />
       <DeletePopover
         open={deleteOpen}

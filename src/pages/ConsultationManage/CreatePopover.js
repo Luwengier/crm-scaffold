@@ -10,23 +10,12 @@ import Popover from '@mui/material/Popover'
 import TextField from '@mui/material/TextField'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import DateTimePicker from '@mui/lab/DateTimePicker'
-import { principals, principalMapping, consultationCategories, consultationMapping, propertyTags } from './dummyData'
+import { v4 as uuidv4 } from 'uuid'
+import { principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
 
-const IMPORTANT_LEVEL_IDS = ['pt2', 'pt3', 'pt4']
-
-const IMPORTANT_LEVELS = [
-  { id: 'pt2', name: '重要' },
-  { id: 'pt3', name: '一般' },
-  { id: 'pt4', name: '次要' },
-]
-
-function CreatePopover(props) {
+function CreatePopover({ setConsultations, consultations, ...restProps }) {
   const theme = useTheme()
-  const [value, setValue] = useState(undefined)
   const [creatingConsultation, setCreatingConsultation] = useState({ propertyTags: [{ id: 'pt3', name: '一般' }] })
-
-  console.log(value)
-  console.log(creatingConsultation)
 
   const onImportantLevelRadio = targetTag => () => {
     if (creatingConsultation.propertyTags.some(item => item.id === targetTag.id)) return
@@ -84,6 +73,25 @@ function CreatePopover(props) {
     }
   }
 
+  const onTextChange = e => {
+    setCreatingConsultation((prev) => ({
+      ...prev,
+      text: e.target.value,
+    }))
+  }
+
+  const onConfirmClick = () => {
+    const newConsultations = [
+      {
+        ...creatingConsultation,
+        id: uuidv4(),
+        isExpanded: true,
+      },
+      ...consultations,
+    ]
+    setConsultations(newConsultations)
+  }
+
   const renderPrincipalOptions = principals => {
     return principals.map(principal => (
       <MenuItem value={principal.id} key={principal.id}>
@@ -104,8 +112,8 @@ function CreatePopover(props) {
     return creatingConsultation.propertyTags.some(item => item.id === targetTag.id) ? 'active' : ''
   }
 
-  const renderTagBtn = propertyTags => {
-    return propertyTags.map(propertyTag => {
+  const renderMinorTagBtn = minorPropertyTags => {
+    return minorPropertyTags.map(propertyTag => {
       const active = creatingConsultation.propertyTags.some(item => item.id === propertyTag.id)
         ? 'active'
         : ''
@@ -117,7 +125,7 @@ function CreatePopover(props) {
 
   return (
     <Popover
-      {...props}
+      {...restProps}
       anchorOrigin={{
         vertical: 'top',
         horizontal: 'right',
@@ -177,8 +185,8 @@ function CreatePopover(props) {
 
       <DateTimePicker
         renderInput={(props) => <TextField variant="outlined" {...props} />}
-        label="提醒時間"
-        value={creatingConsultation.remindStart}
+        label="提醒開始時間"
+        value={creatingConsultation.remindStart || null}
         inputFormat="yyyy/MM/dd hh:mm a"
         mask="___/__/__ __:__ _M"
         onChange={onRemindChange('remindStart')}
@@ -186,16 +194,16 @@ function CreatePopover(props) {
 
       <DateTimePicker
         renderInput={(props) => <TextField className="last-one" variant="outlined" {...props} />}
-        label="提醒時間"
-        value={value}
+        label="提醒結束時間"
+        value={creatingConsultation.remindEnd || null}
         inputFormat="yyyy/MM/dd hh:mm a"
         mask="___/__/__ __:__ _M"
-        onChange={(newValue) => {
-          setValue(newValue);
-        }}
+        onChange={onRemindChange('remindEnd')}
       />
 
       <TextareaAutosize
+        value={creatingConsultation.text || ''}
+        onChange={onTextChange}
         maxRows={10}
         minRows={7}
         style={{
@@ -250,9 +258,9 @@ function CreatePopover(props) {
         },
 
       }}>
-        <Chip label="緊急" size="small"
-          onClick={onTagToggle({ id: 'pt1', name: '緊急' })}
-          className={`red-chip ${judgeActive({ id: 'pt1', name: '緊急' })}`}
+        <Chip label="急" size="small"
+          onClick={onTagToggle({ id: 'pt1', name: '急' })}
+          className={`red-chip ${judgeActive({ id: 'pt1', name: '急' })}`}
         />
         <Box className="toggle-wrapper">
           <Chip label="重要" size="small"
@@ -268,10 +276,15 @@ function CreatePopover(props) {
             className={`light-blue-chip ${judgeActive(IMPORTANT_LEVELS[2])}`}
           />
         </Box>
-        {renderTagBtn(propertyTags)}
+        {renderMinorTagBtn(minorPropertyTags)}
       </Stack>
 
-      <Button variant="contained" color="secondary" sx={{ mt: 2, mb: 1, '&:hover': { bgcolor: 'secondary.light' } }}>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={onConfirmClick}
+        sx={{ mt: 2, mb: 1, '&:hover': { bgcolor: 'secondary.light' } }}
+      >
         確認
       </Button>
     </Popover>
