@@ -1,5 +1,7 @@
 import React from 'react'
+import { TransitionGroup } from 'react-transition-group'
 import { useTheme } from '@mui/material/styles'
+import Zoom from '@mui/material/Zoom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Accordion from '@mui/material/Accordion'
@@ -36,143 +38,144 @@ function ConsultationAccordion() {
 
   const renderAccordion = data => {
     return data && data.map((item, index) => (
-      <Accordion
-        disableGutters
-        elevation={0}
-        defaultExpanded={true}
+      <Zoom key={item.id} timeout={500}>
+        <Accordion
+          disableGutters
+          elevation={0}
+          defaultExpanded={true}
         // expanded={expanded === `panel${index + 1}`}
         // onChange={handleChange(`panel${index + 1}`)}
-        key={index}
-      >
-        <AccordionSummary expandIcon={<ArrowForwardIosSharpIcon />}>
-          <Box className="order-info-wrapper">
-            <div className="order-info">
-              <div className="serial-sec">{index + 1}</div>
+        >
+          <AccordionSummary expandIcon={<ArrowForwardIosSharpIcon />}>
+            <Box className="order-info-wrapper">
+              <div className="order-info">
+                <div className="serial-sec">{index + 1}</div>
 
-              <div className="info-sec-container">
-                <div className="info-sec-wrapper">
-                  <div className="info-sec">
-                    <Typography className="info-title" variant="subtitle1" component="span">
-                      日期 :&nbsp;
-                    </Typography>
-                    <Typography className="info-content" variant="subtitle1" component="span">
-                      2021/12/20
-                    </Typography>
+                <div className="info-sec-container">
+                  <div className="info-sec-wrapper">
+                    <div className="info-sec">
+                      <Typography className="info-title" variant="subtitle1" component="span">
+                        日期 :&nbsp;
+                      </Typography>
+                      <Typography className="info-content" variant="subtitle1" component="span">
+                        2021/12/20
+                      </Typography>
+                    </div>
+                    <div className="info-sec">
+                      <Typography className="info-title" variant="subtitle1" component="span">
+                        門市 :&nbsp;
+                      </Typography>
+                      <Typography className="info-content" variant="subtitle1" component="span">
+                        老先覺旁邊的寵物店
+                      </Typography>
+                    </div>
                   </div>
-                  <div className="info-sec">
-                    <Typography className="info-title" variant="subtitle1" component="span">
-                      門市 :&nbsp;
-                    </Typography>
-                    <Typography className="info-content" variant="subtitle1" component="span">
-                      老先覺旁邊的寵物店
-                    </Typography>
+
+                  <div className="info-sec-wrapper">
+                    <div className="info-sec">
+                      <Typography className="info-title" variant="subtitle1" component="span">
+                        會員 :&nbsp;
+                      </Typography>
+                      <Typography className="info-content" variant="subtitle1" component="span">
+                        王大美 | 0912345678
+                      </Typography>
+                    </div>
+                    <div className="info-sec">
+                      <Typography className="info-title" variant="subtitle1" component="span">
+                        發票 :&nbsp;
+                      </Typography>
+                      <Typography className="info-content" variant="subtitle1" component="span">
+                        SR19356154
+                      </Typography>
+                    </div>
                   </div>
-                </div>
 
-                <div className="info-sec-wrapper">
-                  <div className="info-sec">
-                    <Typography className="info-title" variant="subtitle1" component="span">
-                      會員 :&nbsp;
-                    </Typography>
-                    <Typography className="info-content" variant="subtitle1" component="span">
-                      王大美 | 0912345678
-                    </Typography>
+                  <div className="info-sec-wrapper">
+                    <div className="info-sec">
+                      <Typography className="info-title" variant="subtitle1" component="span">
+                        銷售員 :&nbsp;
+                      </Typography>
+                      <Typography className="info-content" variant="subtitle1" component="span">
+                        王小明
+                      </Typography>
+                    </div>
+                    <div className="info-sec">
+                      <Typography className="info-title" variant="subtitle1" component="span">
+                        服務員 :&nbsp;
+                      </Typography>
+                      <Typography className="info-content" variant="subtitle1" component="span">
+                        李小美
+                      </Typography>
+                    </div>
                   </div>
-                  <div className="info-sec">
-                    <Typography className="info-title" variant="subtitle1" component="span">
-                      發票 :&nbsp;
-                    </Typography>
-                    <Typography className="info-content" variant="subtitle1" component="span">
-                      SR19356154
-                    </Typography>
-                  </div>
-                </div>
 
-                <div className="info-sec-wrapper">
-                  <div className="info-sec">
-                    <Typography className="info-title" variant="subtitle1" component="span">
-                      銷售員 :&nbsp;
-                    </Typography>
-                    <Typography className="info-content" variant="subtitle1" component="span">
-                      王小明
-                    </Typography>
-                  </div>
-                  <div className="info-sec">
-                    <Typography className="info-title" variant="subtitle1" component="span">
-                      服務員 :&nbsp;
-                    </Typography>
-                    <Typography className="info-content" variant="subtitle1" component="span">
-                      李小美
-                    </Typography>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            <div className="order-id">
-              CV12378374897
-            </div>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Box className="order-table">
-            <div className="table-header">
-              <div className="serial-sec">項次</div>
-              <div className="name-sec">商品名稱</div>
-              <div className="clerk-sec">服務員</div>
-              <div className="price-sec">定價</div>
-              <div className="quantity-sec">數量</div>
-              <div className="discount-sec">折數</div>
-              <div className="total-sec">合計</div>
-            </div>
-
-            <div className="table-list">
-              {renderDetail(item.content)}
-            </div>
-          </Box>
-          <Box
-            className="order-detail"
-          >
-            <div className="credit-info">
-              <div className="last-yard">
-                <span>信用卡號末四碼 : </span>
-                <span>1234</span>
-              </div>
-              <div className="auth-yard">
-                <span>授權碼 : </span>
-                <span>558735</span>
-              </div>
-            </div>
-
-            <div className="received-info">
-              <div className="received-list">
-                <div className="received-sec">
-                  <span>整筆折扣 : </span>
-                  <span>1000</span>
-                </div>
-                <div className="received-sec">
-                  <span>現金 : </span>
-                  <span>1000</span>
-                </div>
-                <div className="received-sec">
-                  <span>匯款 : </span>
-                  <span>1000</span>
-                </div>
-                <div className="received-sec">
-                  <span>信用卡 : </span>
-                  <span>3580</span>
                 </div>
               </div>
 
-              <div className="total-sum">
-                <span>總金額 :&nbsp;</span>
-                <span>7200元</span>
+              <div className="order-id">
+                CV12378374897
               </div>
-            </div>
-          </Box>
-        </AccordionDetails>
-      </Accordion>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box className="order-table">
+              <div className="table-header">
+                <div className="serial-sec">項次</div>
+                <div className="name-sec">商品名稱</div>
+                <div className="clerk-sec">服務員</div>
+                <div className="price-sec">定價</div>
+                <div className="quantity-sec">數量</div>
+                <div className="discount-sec">折數</div>
+                <div className="total-sec">合計</div>
+              </div>
+
+              <div className="table-list">
+                {renderDetail(item.content)}
+              </div>
+            </Box>
+            <Box
+              className="order-detail"
+            >
+              <div className="credit-info">
+                <div className="last-yard">
+                  <span>信用卡號末四碼 : </span>
+                  <span>1234</span>
+                </div>
+                <div className="auth-yard">
+                  <span>授權碼 : </span>
+                  <span>558735</span>
+                </div>
+              </div>
+
+              <div className="received-info">
+                <div className="received-list">
+                  <div className="received-sec">
+                    <span>整筆折扣 : </span>
+                    <span>1000</span>
+                  </div>
+                  <div className="received-sec">
+                    <span>現金 : </span>
+                    <span>1000</span>
+                  </div>
+                  <div className="received-sec">
+                    <span>匯款 : </span>
+                    <span>1000</span>
+                  </div>
+                  <div className="received-sec">
+                    <span>信用卡 : </span>
+                    <span>3580</span>
+                  </div>
+                </div>
+
+                <div className="total-sum">
+                  <span>總金額 :&nbsp;</span>
+                  <span>7200元</span>
+                </div>
+              </div>
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      </Zoom>
     ))
   }
 
@@ -394,7 +397,9 @@ function ConsultationAccordion() {
       </Typography>
       <MemberInfo />
       <Box sx={{ borderRadius: '0.5rem', overflow: 'auto' }}>
-        {renderAccordion(orderData)}
+        <TransitionGroup>
+          {renderAccordion(orderData)}
+        </TransitionGroup>
       </Box>
       <Pagination count={10} shape="rounded" />
     </Box>

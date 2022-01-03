@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { TransitionGroup } from 'react-transition-group'
 import { useTheme } from '@mui/material/styles'
-import { format } from 'date-fns'
-import Zoom from '@mui/material/Zoom';
+// import { format } from 'date-fns'
+import Zoom from '@mui/material/Zoom'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
@@ -14,6 +14,8 @@ import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
+import TextField from '@mui/material/TextField'
+import DateTimePicker from '@mui/lab/DateTimePicker'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined'
@@ -33,8 +35,8 @@ const insertIsExpanded = consultations => {
   return consultations.map(consultation => ({ ...consultation, isExpanded: consultation.isCompleted ? false : true }))
 }
 
-const getLocaleDateString = () => {
-  const newLocaleDateString = new Date().toLocaleString()
+const getLocaleDateString = timestamp => {
+  const newLocaleDateString = new Date(timestamp).toLocaleString()
   return newLocaleDateString.replace('午', '午 ').slice(0, -3)
 }
 
@@ -82,9 +84,9 @@ function ConsultationMange() {
       return consultation.id === item.id
         ? {
           ...consultation,
-          ...(!consultation.isCompleted && { completedAt: getLocaleDateString() }),
+          ...(!consultation.isCompleted && { completedAt: new Date().getTime() }),
           isCompleted: !consultation.isCompleted,
-          isExpanded: consultation.isCompleted,
+          // isExpanded: consultation.isCompleted,
         }
         : consultation
     })
@@ -187,17 +189,31 @@ function ConsultationMange() {
     setEditingItem(newEditingItem)
   }
 
-  const onRemindTimeChange = e => {
-    const newEditingItem = {
-      ...editingItem,
-      [e.target.name]: new Date(e.target.value).getTime()
-    }
-    setEditingItem(newEditingItem)
-  }
+  // const formatRemindTime = inputTime => {
+  //   const formatTime = inputTime && format(new Date(inputTime), "yyyy-MM-dd'T'hh:mm")
+  //   return formatTime
+  // }
 
-  const formatRemindTime = inputTime => {
-    const formatTime = inputTime && format(new Date(inputTime), "yyyy-MM-dd'T'hh:mm")
-    return formatTime
+  // const onRemindTimeChange = e => {
+  //   const newEditingItem = {
+  //     ...editingItem,
+  //     [e.target.name]: new Date(e.target.value).getTime()
+  //   }
+  //   setEditingItem(newEditingItem)
+  // }
+
+  const onRemindChange = name => newValue => {
+    if (newValue instanceof Date && !isNaN(newValue)) {
+      setEditingItem((prev) => ({
+        ...prev,
+        [name]: new Date(newValue).getTime(),
+      }))
+    } else {
+      setEditingItem((prev) => ({
+        ...prev,
+        [name]: null,
+      }))
+    }
   }
 
   const onTagToggle = targetTag => () => {
@@ -339,23 +355,48 @@ function ConsultationMange() {
       return (
         <div className="record-date">
           <span className="obvious">完成時間 :&nbsp;</span>
-          <span className="obvious">{item.completedAt}</span>
+          <span className="obvious">{getLocaleDateString(item.completedAt)}</span>
         </div>
       )
     } else if (isEditing) {
       return (
         <React.Fragment>
           <div className="remind-date">
-            <TimerOutlinedIcon fontSize="small" />
+            <TimerOutlinedIcon className="date-icon" fontSize="small" />
             <span>提醒時間 :&nbsp;</span>
-            <input
+            {/* <input
               type="datetime-local"
-              name="remindStartTime"
-              value={formatRemindTime(editingItem.remindStartTime) || ''}
+              name="remindStart"
               onChange={onRemindTimeChange}
+              value={formatRemindTime(editingItem.remindStart) || ''}
+              max={editingItem.remindEnd && formatRemindTime(editingItem.remindEnd)}
+            /> */}
+            <DateTimePicker
+              renderInput={(props) => <TextField variant="outlined" {...props} />}
+              minutesStep={5}
+              value={editingItem.remindStart ? new Date(editingItem.remindStart) : ''}
+              inputFormat="yyyy/MM/dd hh:mm a"
+              mask="___/__/__ __:__ _M"
+              onChange={onRemindChange('remindStart')}
+              maxDateTime={editingItem.remindEnd && new Date(editingItem.remindEnd)}
             />
             <span>&nbsp;-&nbsp;</span>
-            <input type="datetime-local" />
+            {/* <input
+              type="datetime-local"
+              name="remindEnd"
+              onChange={onRemindTimeChange}
+              value={formatRemindTime(editingItem.remindEnd) || ''}
+              min={editingItem.remindStart && formatRemindTime(editingItem.remindStart)}
+            /> */}
+            <DateTimePicker
+              renderInput={(props) => <TextField variant="outlined" {...props} />}
+              minutesStep={5}
+              value={editingItem.remindEnd ? new Date(editingItem.remindEnd) : null}
+              inputFormat="yyyy/MM/dd hh:mm a"
+              mask="___/__/__ __:__ _M"
+              onChange={onRemindChange('remindEnd')}
+              minDateTime={editingItem.remindStart && new Date(editingItem.remindStart)}
+            />
           </div>
         </React.Fragment>
       )
@@ -363,17 +404,21 @@ function ConsultationMange() {
       return (
         <React.Fragment>
           <div className="record-date">
-            <RateReviewOutlinedIcon fontSize="small" />
+            <RateReviewOutlinedIcon className="date-icon" fontSize="small" />
             <span>紀錄時間 :&nbsp;</span>
             <span>2021/08/10</span>
           </div>
           <span>|</span>
           <div className="remind-date">
-            <TimerOutlinedIcon fontSize="small" />
+            <TimerOutlinedIcon className="date-icon" fontSize="small" />
             <span>提醒時間 :&nbsp;</span>
-            <span className="obvious">2021/08/31 下午 03:00</span>
-            <span>&nbsp;-&nbsp;</span>
-            <span className="obvious">2021/09/01 下午 06:00</span>
+            <span className="obvious">{item.remindStart && getLocaleDateString(item.remindStart)}</span>
+            {item.remindEnd && (
+              <React.Fragment>
+                <span>&nbsp;-&nbsp;</span>
+                <span className="obvious">{getLocaleDateString(item.remindEnd)}</span>
+              </React.Fragment>
+            )}
           </div>
         </React.Fragment>
       )
@@ -609,6 +654,9 @@ function ConsultationMange() {
           '& .info-title': {
             fontWeight: 'bold',
           },
+          '& select': {
+            fontSize: '0.875rem',
+          },
         },
         '& .icon-group': {
           display: 'flex',
@@ -653,7 +701,7 @@ function ConsultationMange() {
           px: 0.5,
           mx: 0.5,
           borderRadius: '1rem',
-          border: `1px dashed ${theme.palette.text.mid}`,
+          border: `1px dashed ${theme.palette.text.fade}`,
         },
         '& .chip-wrapper': {
           px: 2.5,
@@ -704,13 +752,16 @@ function ConsultationMange() {
             alignItems: 'center',
             px: 1.5,
           },
-          '& input': {
-            pl: 1,
-            width: '14rem',
-            border: '1px solid #cccccc',
-            borderRadius: '0.25em',
+          // '& input': {
+          //   pl: 1,
+          //   width: '14rem',
+          //   border: '1px solid #cccccc',
+          //   borderRadius: '0.25em',
+          // },
+          '& .MuiOutlinedInput-input': {
+            py: 0.25,
           },
-          '& svg': { mr: 0.75 },
+          '& svg.date-icon': { mr: 0.75 },
           '& span': { display: 'inline-block' },
           '& span.obvious': {
             fontWeight: 'bold',

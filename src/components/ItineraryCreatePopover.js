@@ -58,7 +58,9 @@ export default function ItineraryCreatePopover(props) {
       }}
     >
 
-      <Paper sx={{ p: 2, flexGrow: 1, boxShadow: 2, display: 'flex', flexDirection: 'column' }}>
+      <Paper sx={{
+        p: 2, flexGrow: 1, boxShadow: 2, display: 'flex', flexDirection: 'column', bgcolor: 'background.light',
+      }}>
         <Box sx={{ flexGrow: 1 }}>
           <Typography
             variant="h6"

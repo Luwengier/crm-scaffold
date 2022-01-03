@@ -10,6 +10,8 @@ export const dummyData = [
     id: 't1',
     isCompleted: false,
     text: getSerialText(1),
+    remindStart: 1641465360000,
+    remindEnd: 1643103000000,
     principal: {
       id: 'p1',
       name: '金小城',
@@ -41,6 +43,7 @@ export const dummyData = [
     id: 't2',
     isCompleted: false,
     text: getSerialText(2),
+    remindStart: 1641465360000,
     principal: {
       id: 'p2',
       name: '林昱梅',
@@ -67,8 +70,9 @@ export const dummyData = [
   {
     id: 'c3',
     isCompleted: false,
-    completedAt: '2021/09/05 下午 04:30',
     text: getSerialText(3),
+    remindStart: 1641465360000,
+    remindEnd: 1643103000000,
     principal: {
       id: 'p3',
       name: '沈明傑',
@@ -92,6 +96,7 @@ export const dummyData = [
     id: 'c4',
     isCompleted: false,
     text: getSerialText(4),
+    remindStart: 1641465360000,
     principal: {
       id: 'p1',
       name: '金小城',
@@ -114,8 +119,9 @@ export const dummyData = [
   {
     id: 'c5',
     isCompleted: true,
-    completedAt: '2021/09/02 下午 01:20',
+    completedAt: 1641196284569,
     text: getSerialText(5),
+    remindStart: 1641465360000,
     principal: {
       id: 'p1',
       name: '金小城',
@@ -142,8 +148,9 @@ export const dummyData = [
   {
     id: 'c6',
     isCompleted: true,
-    completedAt: '2021/09/02 下午 01:20',
+    completedAt: 1641196284569,
     text: getSerialText(6),
+    remindStart: 1641465360000,
     principal: {
       id: 'p2',
       name: '林昱梅',
@@ -170,8 +177,9 @@ export const dummyData = [
   {
     id: 'c7',
     isCompleted: true,
-    completedAt: '2021/09/02 下午 01:20',
+    completedAt: 1641196284569,
     text: getSerialText(7),
+    remindStart: 1641465360000,
     principal: {
       id: 'p1',
       name: '金小城',
@@ -194,8 +202,9 @@ export const dummyData = [
   {
     id: 'c8',
     isCompleted: true,
-    completedAt: '2021/09/02 下午 01:20',
+    completedAt: 1641196284569,
     text: getSerialText(8),
+    remindStart: 1641465360000,
     principal: {
       id: 'p2',
       name: '林昱梅',
