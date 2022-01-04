@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { omit } from 'lodash-es'
+import { v4 as uuidv4 } from 'uuid'
 import { TransitionGroup } from 'react-transition-group'
 import { useTheme, alpha } from '@mui/material/styles'
 // import { format } from 'date-fns'
-import Zoom from '@mui/material/Zoom'
+import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
@@ -32,16 +33,18 @@ import CreatePopover from './CreatePopover'
 import DeletePopover from './DeletePopover'
 import { dummyData, principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_CLASS_MAPPING, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
 
-
+// 在諮詢資料加入是否展開的資料
 const insertIsExpanded = consultations => {
   return consultations.map(consultation => ({ ...consultation, isExpanded: consultation.isCompleted ? false : true }))
 }
 
+// 客製時間格式
 const getLocaleDateString = timestamp => {
   const newLocaleDateString = new Date(timestamp).toLocaleString()
   return newLocaleDateString.replace('午', '午 ').slice(0, -3)
 }
 
+// 過濾資料內容
 const filterDate = (data, selected) => {
   if (!selected) { return data }
   else if (selected === 'undone') {
@@ -58,16 +61,17 @@ function ConsultationMange() {
   const [editingItem, setEditingItem] = useState({})
   const [anchorEl, setAnchorEl] = useState(null)
   const [deleteEl, setDeleteEl] = useState(null)
-  const [selected, setSelected] = useState('')
+  const [selectedDisplay, setSelectedDisplay] = useState('')
 
   useEffect(() => {
     setConsultations(insertIsExpanded(dummyData))
   }, [])
 
   const filteredData = useMemo(() => {
-    return consultations ? filterDate(consultations, selected) : []
-  }, [consultations, selected])
+    return consultations ? filterDate(consultations, selectedDisplay) : []
+  }, [consultations, selectedDisplay])
 
+  // 切換展開
   const onExpandedChange = (id, isEditing) => (event, isExpanded) => {
     const newConsultations = consultations.map(consultation => {
       return consultation.id === id ? { ...consultation, isExpanded: isEditing ? true : !consultation.isExpanded } : consultation
@@ -75,12 +79,14 @@ function ConsultationMange() {
     setConsultations(newConsultations)
   }
 
-  const onSelected = (event, newSelected) => {
-    if (newSelected !== null) {
-      setSelected(newSelected);
+  // 切換篩選條件
+  const onSelectDisplay = (event, newSelectedDisplay) => {
+    if (newSelectedDisplay !== null) {
+      setSelectedDisplay(newSelectedDisplay);
     }
   }
 
+  // 切換是否已完成
   const onCompletedToggle = item => e => {
     e.stopPropagation()
     const newConsultations = consultations.map(consultation => {
@@ -97,19 +103,20 @@ function ConsultationMange() {
     setConsultations(newConsultations)
   }
 
+  // 開啟及關閉新增諮詢窗
   const handleCreateClick = (e) => {
     setAnchorEl(e.currentTarget)
-  }
-
-  const handleDeleteClick = (e) => {
-    e.stopPropagation()
-    setDeleteEl(e.currentTarget)
   }
 
   const handleCreateClose = () => {
     setAnchorEl(null)
   }
 
+  // 開啟及關閉刪除諮詢窗
+  const handleDeleteClick = (e) => {
+    e.stopPropagation()
+    setDeleteEl(e.currentTarget)
+  }
   const handleDeleteClose = () => {
     setDeleteEl(null)
   }
@@ -119,6 +126,9 @@ function ConsultationMange() {
     setConsultations(newConsultations)
   }
 
+  const createOpen = Boolean(anchorEl)
+  const deleteOpen = Boolean(deleteEl)
+
   // 編輯相關 Function
   const onEditClick = item => e => {
     e.stopPropagation()
@@ -127,7 +137,6 @@ function ConsultationMange() {
       ...restProperty,
       remindStart: new Date(remindStart),
       remindEnd: remindEnd ? new Date(remindEnd) : null,
-      // ...(remindEnd && { remindEnd: new Date(remindEnd) }),
     })
     // 編輯時自動展開
     onExpandedChange(item.id, Boolean(item.id))()
@@ -136,8 +145,8 @@ function ConsultationMange() {
 
   const onEditCancel = e => {
     e.stopPropagation()
-    setErrors({})
     setEditingItem({})
+    setErrors({})
   }
 
   const validateConsultation = () => {
@@ -163,9 +172,9 @@ function ConsultationMange() {
   }
 
   const onEditConfirm = e => {
+    e.stopPropagation()
     if (validateConsultation()) return
     // 需要 stopPropagation 否則 setConsultations 會被 onExpandedChange 裡的覆蓋
-    e.stopPropagation()
     const newConsultations = consultations.map(consultation => {
       return consultation.id === editingItem.id
         ? { ...consultation, ...editingItem }
@@ -175,19 +184,43 @@ function ConsultationMange() {
     setEditingItem({})
   }
 
-  const onPrincipalChange = e => {
-    setErrors(omit(errors, 'principal'))
+  // 轉派負責人
+  // 在 select 中的每個 option 需要設 e.stopPropagation()
+  const transferPrincipal = e => {
+    e.stopPropagation()
+    if (validateConsultation()) return
     const newEditingItem = {
       ...editingItem,
+      id: uuidv4(),
       principal: {
         ...editingItem.principal,
         id: e.target.value,
         name: principalMapping[e.target.value]
       }
     }
-    setEditingItem(newEditingItem)
+    const modifiedConsultations = consultations.map(consultation => {
+      return consultation.id === editingItem.id
+        ? {
+          ...consultation,
+          isCompleted: true,
+          completedAt: new Date().getTime(),
+          transferAt: new Date().getTime(),
+        }
+        : consultation
+    })
+    setConsultations([newEditingItem, ...modifiedConsultations])
+    setEditingItem({})
   }
 
+  const renderPrincipalOptions = principals => {
+    return principals.map(principal => (
+      <MenuItem key={principal.id} value={principal.id} onClick={e => e.stopPropagation()}>
+        {principal.name}
+      </MenuItem>
+    ))
+  }
+
+  // 選擇類別
   const onCategoryChange = e => {
     setErrors(omit(errors, 'category'))
     const newEditingItem = {
@@ -201,22 +234,15 @@ function ConsultationMange() {
     setEditingItem(newEditingItem)
   }
 
-  const renderPrincipalOptions = principals => {
-    return principals.map(principal => (
-      <MenuItem key={principal.id} value={principal.id}>
-        {principal.name}
-      </MenuItem>
-    ))
-  }
-
   const renderCategoryOptions = categories => {
     return categories.map(category => (
-      <MenuItem key={category.id} value={category.id}>
+      <MenuItem key={category.id} value={category.id} onClick={e => e.stopPropagation()}>
         {category.name}
       </MenuItem>
     ))
   }
 
+  // 輸入諮詢內容
   const onTextChange = e => {
     setErrors(omit(errors, 'text'))
     const newEditingItem = {
@@ -226,19 +252,7 @@ function ConsultationMange() {
     setEditingItem(newEditingItem)
   }
 
-  // const formatRemindTime = inputTime => {
-  //   const formatTime = inputTime && format(new Date(inputTime), "yyyy-MM-dd'T'hh:mm")
-  //   return formatTime
-  // }
-
-  // const onRemindTimeChange = e => {
-  //   const newEditingItem = {
-  //     ...editingItem,
-  //     [e.target.name]: new Date(e.target.value).getTime()
-  //   }
-  //   setEditingItem(newEditingItem)
-  // }
-
+  // 改變提醒時間
   const onRemindChange = name => newValue => {
     setErrors(omit(errors, name))
     setEditingItem((prev) => ({
@@ -247,6 +261,7 @@ function ConsultationMange() {
     }))
   }
 
+  // 切換狀態標籤
   const onTagToggle = targetTag => () => {
     setEditingItem((prev) => ({
       ...prev,
@@ -265,6 +280,19 @@ function ConsultationMange() {
       propertyTags: [...clearedPropertyTag, targetTag]
     }))
   }
+
+  // const formatRemindTime = inputTime => {
+  //   const formatTime = inputTime && format(new Date(inputTime), "yyyy-MM-dd'T'hh:mm")
+  //   return formatTime
+  // }
+
+  // const onRemindTimeChange = e => {
+  //   const newEditingItem = {
+  //     ...editingItem,
+  //     [e.target.name]: new Date(e.target.value).getTime()
+  //   }
+  //   setEditingItem(newEditingItem)
+  // }
 
 
   const renderIconButton = (item, isCompleted, isEditing) => {
@@ -383,12 +411,19 @@ function ConsultationMange() {
 
   const renderDateGroup = (item, isCompleted, isEditing) => {
     if (isCompleted) {
-      return (
-        <div className="record-date">
-          <span className="obvious">完成時間 :&nbsp;</span>
-          <span className="obvious">{getLocaleDateString(item.completedAt)}</span>
-        </div>
-      )
+      return item.transferAt
+        ? (
+          <div className="record-date">
+            <span className="obvious">轉派時間 :&nbsp;</span>
+            <span className="obvious">{getLocaleDateString(item.transferAt)}</span>
+          </div>
+        )
+        : (
+          <div className="record-date">
+            <span className="obvious">完成時間 :&nbsp;</span>
+            <span className="obvious">{getLocaleDateString(item.completedAt)}</span>
+          </div>
+        )
     } else if (isEditing) {
       return (
         <React.Fragment>
@@ -464,7 +499,7 @@ function ConsultationMange() {
       const isEditing = (editingItem.id === item.id) && !item.isCompleted ? ' editing' : ''
 
       return (
-        <Zoom key={item.id} timeout={500}>
+        <Collapse key={item.id} timeout={500}>
           <div className={`accordion-wrapper${isCompleted}`}>
 
             <Accordion
@@ -493,7 +528,7 @@ function ConsultationMange() {
                               <TextField
                                 select
                                 value={(editingItem.principal && editingItem.principal.id) || ''}
-                                onChange={onPrincipalChange}
+                                onChange={transferPrincipal}
                                 error={Boolean(errors.principal)}
                                 helperText={errors.principal}
                               >
@@ -613,13 +648,10 @@ function ConsultationMange() {
             </div>
           </div>
 
-        </Zoom>
+        </Collapse>
       )
     })
   }
-
-  const createOpen = Boolean(anchorEl)
-  const deleteOpen = Boolean(deleteEl)
 
   return (
     <Box
@@ -862,9 +894,9 @@ function ConsultationMange() {
         }}
       >
         <DisplayToggleButton
-          selected={selected}
-          setSelected={setSelected}
-          onSelected={onSelected}
+          selected={selectedDisplay}
+          setSelected={setSelectedDisplay}
+          onSelected={onSelectDisplay}
         />
         <Button
           variant="outlined"

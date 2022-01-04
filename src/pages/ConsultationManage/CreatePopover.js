@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { omit } from 'lodash-es'
+import { v4 as uuidv4 } from 'uuid'
 import { useTheme } from '@mui/material/styles'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
@@ -12,7 +13,6 @@ import TextField from '@mui/material/TextField'
 import FormHelperText from '@mui/material/FormHelperText'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import DateTimePicker from '@mui/lab/DateTimePicker'
-import { v4 as uuidv4 } from 'uuid'
 import { principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
 
 const INITIAL_STATE = {
