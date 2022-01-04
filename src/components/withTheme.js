@@ -18,7 +18,7 @@ const getDesignTokens = (mode) => ({
       text: '#5590ac',
     },
     secondary: {
-      bg: '#fff8df',
+      bg: '#fdffcf',
       main: amber['A200'],
       text: '#ffdc6b',
       darkText: amber[500],
@@ -59,13 +59,9 @@ const getDesignTokens = (mode) => ({
     },
     jewelry: {
       red: '#ff756a',
-      fadeRed: '#f1cecc',
       darkBlue: '#289ad9',
       blue: '#57c3ff',
       lightBlue: '#a5dfff',
-      fadeDarkBlue: '#b9d6e5',
-      fadeBlue: '#cfe2ec',
-      fadeLightBlue: '#dceef7',
       // #ff8d6b
     },
     grayscale: {

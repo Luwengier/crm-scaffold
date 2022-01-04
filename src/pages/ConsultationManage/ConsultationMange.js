@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { omit } from 'lodash-es'
 import { TransitionGroup } from 'react-transition-group'
-import { useTheme } from '@mui/material/styles'
+import { useTheme, alpha } from '@mui/material/styles'
 // import { format } from 'date-fns'
 import Zoom from '@mui/material/Zoom'
 import Box from '@mui/material/Box'
@@ -15,6 +16,7 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
 import DateTimePicker from '@mui/lab/DateTimePicker'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
@@ -52,6 +54,7 @@ const filterDate = (data, selected) => {
 function ConsultationMange() {
   const theme = useTheme()
   const [consultations, setConsultations] = useState(null)
+  const [errors, setErrors] = useState({})
   const [editingItem, setEditingItem] = useState({})
   const [anchorEl, setAnchorEl] = useState(null)
   const [deleteEl, setDeleteEl] = useState(null)
@@ -119,17 +122,48 @@ function ConsultationMange() {
   // 編輯相關 Function
   const onEditClick = item => e => {
     e.stopPropagation()
-    setEditingItem(item)
+    const { remindStart, remindEnd, ...restProperty } = item
+    setEditingItem({
+      ...restProperty,
+      remindStart: new Date(remindStart),
+      remindEnd: remindEnd ? new Date(remindEnd) : null,
+      // ...(remindEnd && { remindEnd: new Date(remindEnd) }),
+    })
     // 編輯時自動展開
     onExpandedChange(item.id, Boolean(item.id))()
+    setErrors({})
   }
 
   const onEditCancel = e => {
     e.stopPropagation()
+    setErrors({})
     setEditingItem({})
   }
 
+  const validateConsultation = () => {
+    const newErrors = {}
+    if (!editingItem.principal) newErrors.principal = '負責人為必填'
+    if (!editingItem.category) newErrors.category = '類別為必填'
+    if (!editingItem.text) newErrors.text = '文字內容為必填'
+
+    if (!editingItem.remindStart) {
+      newErrors.remindStart = '提醒開始時間為必填'
+    }
+    else if (!(editingItem.remindStart instanceof Date) || isNaN(editingItem.remindStart)) {
+      newErrors.remindStart = '時間格式錯誤'
+    }
+
+    if (editingItem.remindEnd && (
+      !(editingItem.remindEnd instanceof Date) || isNaN(editingItem.remindEnd)
+    )) {
+      newErrors.remindEnd = '時間格式錯誤，若無需要可清空'
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length > 0
+  }
+
   const onEditConfirm = e => {
+    if (validateConsultation()) return
     // 需要 stopPropagation 否則 setConsultations 會被 onExpandedChange 裡的覆蓋
     e.stopPropagation()
     const newConsultations = consultations.map(consultation => {
@@ -142,6 +176,7 @@ function ConsultationMange() {
   }
 
   const onPrincipalChange = e => {
+    setErrors(omit(errors, 'principal'))
     const newEditingItem = {
       ...editingItem,
       principal: {
@@ -154,6 +189,7 @@ function ConsultationMange() {
   }
 
   const onCategoryChange = e => {
+    setErrors(omit(errors, 'category'))
     const newEditingItem = {
       ...editingItem,
       category: {
@@ -167,21 +203,22 @@ function ConsultationMange() {
 
   const renderPrincipalOptions = principals => {
     return principals.map(principal => (
-      <option value={principal.id} key={principal.id}>
+      <MenuItem key={principal.id} value={principal.id}>
         {principal.name}
-      </option>
+      </MenuItem>
     ))
   }
 
   const renderCategoryOptions = categories => {
     return categories.map(category => (
-      <option value={category.id} key={category.id}>
+      <MenuItem key={category.id} value={category.id}>
         {category.name}
-      </option>
+      </MenuItem>
     ))
   }
 
   const onTextChange = e => {
+    setErrors(omit(errors, 'text'))
     const newEditingItem = {
       ...editingItem,
       text: e.target.value,
@@ -203,17 +240,11 @@ function ConsultationMange() {
   // }
 
   const onRemindChange = name => newValue => {
-    if (newValue instanceof Date && !isNaN(newValue)) {
-      setEditingItem((prev) => ({
-        ...prev,
-        [name]: new Date(newValue).getTime(),
-      }))
-    } else {
-      setEditingItem((prev) => ({
-        ...prev,
-        [name]: null,
-      }))
-    }
+    setErrors(omit(errors, name))
+    setEditingItem((prev) => ({
+      ...prev,
+      [name]: newValue,
+    }))
   }
 
   const onTagToggle = targetTag => () => {
@@ -246,7 +277,7 @@ function ConsultationMange() {
     } else if (isEditing) {
       return (
         <React.Fragment>
-          <Button variant="contained" size="small" color="inherit" disableElevation={true} onClick={onEditCancel}>取消</Button>
+          <Button className="cancel-btn" variant="contained" size="small" color="inherit" disableElevation={true} onClick={onEditCancel}>取消</Button>
           <Button variant="contained" size="small" color="inherit" disableElevation={true} onClick={onEditConfirm}>修改</Button>
         </React.Fragment>
       )
@@ -371,15 +402,17 @@ function ConsultationMange() {
               value={formatRemindTime(editingItem.remindStart) || ''}
               max={editingItem.remindEnd && formatRemindTime(editingItem.remindEnd)}
             /> */}
-            <DateTimePicker
-              renderInput={(props) => <TextField variant="outlined" {...props} />}
-              minutesStep={5}
-              value={editingItem.remindStart ? new Date(editingItem.remindStart) : ''}
-              inputFormat="yyyy/MM/dd hh:mm a"
-              mask="___/__/__ __:__ _M"
-              onChange={onRemindChange('remindStart')}
-              maxDateTime={editingItem.remindEnd && new Date(editingItem.remindEnd)}
-            />
+            <div>
+              <DateTimePicker
+                renderInput={(props) => <TextField {...props} error={Boolean(errors.remindStart || props.error)} helperText={errors.remindStart} variant="outlined" />}
+                minutesStep={5}
+                value={editingItem.remindStart}
+                inputFormat="yyyy/MM/dd hh:mm a"
+                mask="___/__/__ __:__ _M"
+                onChange={onRemindChange('remindStart')}
+                maxDateTime={editingItem.remindEnd && new Date(editingItem.remindEnd)}
+              />
+            </div>
             <span>&nbsp;-&nbsp;</span>
             {/* <input
               type="datetime-local"
@@ -389,9 +422,9 @@ function ConsultationMange() {
               min={editingItem.remindStart && formatRemindTime(editingItem.remindStart)}
             /> */}
             <DateTimePicker
-              renderInput={(props) => <TextField variant="outlined" {...props} />}
+              renderInput={(props) => <TextField {...props} error={Boolean(errors.remindEnd || props.error)} helperText={errors.remindEnd} className="last-one" variant="outlined" />}
               minutesStep={5}
-              value={editingItem.remindEnd ? new Date(editingItem.remindEnd) : null}
+              value={editingItem.remindEnd}
               inputFormat="yyyy/MM/dd hh:mm a"
               mask="___/__/__ __:__ _M"
               onChange={onRemindChange('remindEnd')}
@@ -457,26 +490,32 @@ function ConsultationMange() {
                               <Typography className="info-title" variant="subtitle1" component="span">
                                 轉派給 :&nbsp;
                               </Typography>
-                              <select
+                              <TextField
+                                select
                                 value={(editingItem.principal && editingItem.principal.id) || ''}
                                 onChange={onPrincipalChange}
+                                error={Boolean(errors.principal)}
+                                helperText={errors.principal}
                               >
-                                <option value="">負責人</option>
+                                <MenuItem value="" disabled>負責人</MenuItem>
                                 {renderPrincipalOptions(principals)}
-                              </select>
+                              </TextField>
                             </div>
 
                             <div className="info-sec">
                               <Typography className="info-title" variant="subtitle1" component="span">
                                 類別 :&nbsp;
                               </Typography>
-                              <select
+                              <TextField
+                                select
                                 value={(editingItem.category && editingItem.category.id) || ''}
                                 onChange={onCategoryChange}
+                                error={Boolean(errors.category)}
+                                helperText={errors.category}
                               >
-                                <option value="">選擇類別</option>
+                                <MenuItem value="" disabled>選擇類別</MenuItem>
                                 {renderCategoryOptions(consultationCategories)}
-                              </select>
+                              </TextField>
                             </div>
 
                             <div className="info-sec">
@@ -530,8 +569,13 @@ function ConsultationMange() {
                     </div>
                   </Grid>
 
-                  <Grid item className="icon-group">
-                    {renderIconButton(item, isCompleted, isEditing)}
+                  <Grid className="control-group" item>
+                    {/* <Box className="id-field">
+                      hu2chuei-3rd5-34dv-3nml
+                    </Box> */}
+                    <Box className="icon-field">
+                      {renderIconButton(item, isCompleted, isEditing)}
+                    </Box>
                   </Grid>
 
                 </Grid>
@@ -541,11 +585,13 @@ function ConsultationMange() {
                 {isEditing
                   ? (
                     <TextareaAutosize
-                      className="text-area"
+                      className={`text-area${errors.text ? ' error' : ''}`}
+                      placeholder={errors.text}
                       maxRows={10}
                       minRows={4}
                       value={editingItem.text}
                       onChange={onTextChange}
+                    // {...(errors.text && { style: { border: `2px solid ${theme.palette.error.light}` } })}
                     />
                   )
                   : (
@@ -649,7 +695,8 @@ function ConsultationMange() {
           minWidth: 0,
         },
         '& .info-sec': {
-          display: 'inline-block',
+          display: 'inline-flex',
+          alignItems: 'center',
           pr: 2.5,
           '& .info-title': {
             fontWeight: 'bold',
@@ -658,7 +705,20 @@ function ConsultationMange() {
             fontSize: '0.875rem',
           },
         },
-        '& .icon-group': {
+        '& .MuiSelect-select': {
+          py: 0.25,
+          bgcolor: 'background.paper',
+        },
+        '& .control-group': {
+          display: 'flex',
+          alignItems: 'center',
+        },
+        '& .id-field': {
+          pr: 0.5,
+          fontSize: '0.875rem',
+          letterSpacing: '0.04em',
+        },
+        '& .icon-field': {
           display: 'flex',
           alignItems: 'center',
           px: 0.75,
@@ -666,9 +726,16 @@ function ConsultationMange() {
             mx: 0.5,
             bgcolor: 'background.paper',
             fontWeight: 'bold',
+            '&:hover': {
+              bgcolor: 'text.lighter',
+            },
           },
-          '& .MuiButton-root:hover': {
-            bgcolor: 'text.light',
+
+          '& .MuiButton-root.cancel-btn': {
+            bgcolor: alpha(theme.palette.background.paper, 0.75),
+            '&:hover': {
+              bgcolor: 'text.lighter',
+            },
           },
           '& .MuiIconButton-root': {
             color: 'text.light',
@@ -692,6 +759,12 @@ function ConsultationMange() {
           letterSpacing: '0.00938em',
           fontFamily: 'Roboto',
         },
+        '& .text-area.error': {
+          border: `1px solid ${alpha(theme.palette.error.light, 0.6)}`,
+        },
+        '& .text-area.error::placeholder': {
+          color: alpha(theme.palette.error.light, 0.6),
+        },
         '& .accordion-actions': {
           display: 'flex',
           justifyContent: 'space-between',
@@ -707,6 +780,7 @@ function ConsultationMange() {
           px: 2.5,
           py: 0.5,
           mx: -0.5,
+          alignItems: 'center',
           '& .MuiChip-root': {
             mx: 0.5,
             my: 0.5,
@@ -731,16 +805,16 @@ function ConsultationMange() {
           },
         },
         '& .chip-wrapper.completed': {
-          '& .MuiChip-root': { bgcolor: 'text.fade' },
+          '& .MuiChip-root': { bgcolor: alpha(theme.palette.text.mid, 0.25) },
           '& .plain': {
-            color: 'text.fade',
+            color: alpha(theme.palette.text.mid, 0.25),
             bgcolor: 'inherit',
-            border: `1px solid ${theme.palette.text.fade}`,
+            border: `1px solid ${alpha(theme.palette.text.mid, 0.25)}`,
           },
-          '& .red': { bgcolor: 'jewelry.fadeRed' },
-          '& .blue': { bgcolor: 'jewelry.fadeBlue' },
-          '& .dark-blue': { bgcolor: 'jewelry.fadeDarkBlue' },
-          '& .light-blue': { bgcolor: 'jewelry.fadeLightBlue' },
+          '& .red': { bgcolor: alpha(theme.palette.jewelry.red, 0.25) },
+          '& .blue': { bgcolor: alpha(theme.palette.jewelry.blue, 0.25) },
+          '& .dark-blue': { bgcolor: alpha(theme.palette.jewelry.darkBlue, 0.25) },
+          '& .light-blue': { bgcolor: alpha(theme.palette.jewelry.lightBlue, 0.25) },
         },
         '& .date-group': {
           display: 'flex',
@@ -758,8 +832,14 @@ function ConsultationMange() {
           //   border: '1px solid #cccccc',
           //   borderRadius: '0.25em',
           // },
+          '& .MuiFormControl-root': {
+            py: 1,
+          },
           '& .MuiOutlinedInput-input': {
             py: 0.25,
+          },
+          '& .MuiFormHelperText-root': {
+            mt: 0,
           },
           '& svg.date-icon': { mr: 0.75 },
           '& span': { display: 'inline-block' },

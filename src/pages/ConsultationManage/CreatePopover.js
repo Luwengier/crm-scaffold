@@ -102,9 +102,6 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
     if (!creatingConsultation.principal) newErrors.principal = '負責人為必填'
     if (!creatingConsultation.category) newErrors.category = '類別為必填'
     if (!creatingConsultation.text) newErrors.text = '文字內容為必填'
-    // if (creatingConsultation.remindEnd && creatingConsultation.remindStart && (creatingConsultation.remindEnd < creatingConsultation.remindStart)) {
-    //   newErrors.remindEnd = '提醒結束時間早於開始時間'
-    // }
 
     if (!creatingConsultation.remindStart) {
       newErrors.remindStart = '提醒開始時間為必填'
@@ -249,7 +246,7 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
       />
 
       <DateTimePicker
-        renderInput={(props) => <TextField helperText={errors.remindEnd} className="last-one" variant="outlined" {...props} />}
+        renderInput={(props) => <TextField {...props} error={Boolean(errors.remindEnd || props.error)} helperText={errors.remindEnd} className="last-one" variant="outlined" />}
         minutesStep={5}
         label="提醒結束時間"
         value={creatingConsultation.remindEnd}
@@ -352,18 +349,5 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
     </Popover>
   )
 }
-
-
-// setCreatingConsultation((prev) => ({
-//   ...prev,
-//   propertyTags: prev.propertyTags && prev.propertyTags[propertyTag.id]
-//     ? omit(prev.propertyTags, propertyTag.id)
-//     : {
-//       ...prev.propertyTags,
-//       [propertyTag.id]: prev.propertyTags
-//         ? !prev.propertyTags[propertyTag.id]
-//         : true,
-//     }
-// }))
 
 export default CreatePopover
