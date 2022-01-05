@@ -3,6 +3,7 @@ import { omit } from 'lodash-es'
 import { v4 as uuidv4 } from 'uuid'
 import { TransitionGroup } from 'react-transition-group'
 import { useTheme, alpha } from '@mui/material/styles'
+import { useSearchParams } from 'react-router-dom'
 // import { format } from 'date-fns'
 import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
@@ -22,16 +23,16 @@ import DateTimePicker from '@mui/lab/DateTimePicker'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined'
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import CheckIcon from '@mui/icons-material/Check'
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined'
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
 import MemberInfo from '../../components/MemberInfo'
+import MemberTooltip from './MemberTooltip'
 import DisplayToggleButton from './DisplayToggleButton'
 import CreatePopover from './CreatePopover'
 import DeletePopover from './DeletePopover'
-import { dummyData, principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_CLASS_MAPPING, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
+import { dummyMember, dummyData, principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_CLASS_MAPPING, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
 
 // 在諮詢資料加入是否展開的資料
 const insertIsExpanded = consultations => {
@@ -56,6 +57,7 @@ const filterDate = (data, selected) => {
 
 function ConsultationMange() {
   const theme = useTheme()
+  const [member, setMember] = useState(null)
   const [consultations, setConsultations] = useState(null)
   const [errors, setErrors] = useState({})
   const [editingItem, setEditingItem] = useState({})
@@ -63,9 +65,15 @@ function ConsultationMange() {
   const [deleteEl, setDeleteEl] = useState(null)
   const [selectedDisplay, setSelectedDisplay] = useState('')
 
+  const [searchParams] = useSearchParams()
+  const memberId = searchParams.get('memberId')
+
   useEffect(() => {
+    if (memberId) {
+      setMember(dummyMember)
+    }
     setConsultations(insertIsExpanded(dummyData))
-  }, [])
+  }, [memberId])
 
   const filteredData = useMemo(() => {
     return consultations ? filterDate(consultations, selectedDisplay) : []
@@ -93,7 +101,7 @@ function ConsultationMange() {
       return consultation.id === item.id
         ? {
           ...consultation,
-          ...(!consultation.isCompleted && { completedAt: new Date().getTime() }),
+          ...((!consultation.isCompleted && !consultation.transferredAt) && { completedAt: new Date().getTime() }),
           isCompleted: !consultation.isCompleted,
           // isExpanded: consultation.isCompleted,
         }
@@ -204,7 +212,7 @@ function ConsultationMange() {
           ...consultation,
           isCompleted: true,
           completedAt: new Date().getTime(),
-          transferAt: new Date().getTime(),
+          transferredAt: new Date().getTime(),
         }
         : consultation
     })
@@ -318,8 +326,8 @@ function ConsultationMange() {
           <IconButton aria-label="delete" onClick={handleDeleteClick} data-id={item.id}>
             <DeleteOutlineIcon />
           </IconButton>
-          <IconButton aria-label="complete" onClick={onCompletedToggle(item)}>
-            <CheckCircleOutlineIcon />
+          <IconButton aria-label="complete" onClick={onCompletedToggle(item)} className="obvious">
+            <CheckIcon />
           </IconButton>
         </React.Fragment>
       )
@@ -411,11 +419,11 @@ function ConsultationMange() {
 
   const renderDateGroup = (item, isCompleted, isEditing) => {
     if (isCompleted) {
-      return item.transferAt
+      return item.transferredAt
         ? (
           <div className="record-date">
             <span className="obvious">轉派時間 :&nbsp;</span>
-            <span className="obvious">{getLocaleDateString(item.transferAt)}</span>
+            <span className="obvious">{getLocaleDateString(item.transferredAt)}</span>
           </div>
         )
         : (
@@ -510,7 +518,7 @@ function ConsultationMange() {
               // defaultExpanded={!Boolean(isCompleted)}
               key={index}
             >
-              <AccordionSummary className={`${isCompleted}${isEditing}`} expandIcon={<ArrowForwardIosSharpIcon />}>
+              <AccordionSummary className={`${isCompleted}${isEditing}`} expandIcon={null}>
                 <Grid container className="consultation-info">
 
                   <Grid item className="info-group">
@@ -527,6 +535,7 @@ function ConsultationMange() {
                               </Typography>
                               <TextField
                                 select
+                                className="principal"
                                 value={(editingItem.principal && editingItem.principal.id) || ''}
                                 onChange={transferPrincipal}
                                 error={Boolean(errors.principal)}
@@ -561,6 +570,25 @@ function ConsultationMange() {
                                 王小美
                               </Typography>
                             </div>
+
+                            {!member && (
+                              <MemberTooltip
+                                member={item.member}
+                                arrow
+                                PopperProps={{
+                                  onClick: e => e.stopPropagation(),
+                                }}>
+                                <div className="info-sec">
+                                  <Typography className="info-title" variant="subtitle1" component="span">
+                                    會員姓名 :&nbsp;
+                                  </Typography>
+                                  <Typography className="info-content" variant="subtitle1" component="span">
+                                    {item.member && item.member.name}
+                                  </Typography>
+                                </div>
+                              </MemberTooltip>
+                            )}
+
                           </React.Fragment>
                         )
                         : (
@@ -591,6 +619,24 @@ function ConsultationMange() {
                                 王小美
                               </Typography>
                             </div>
+
+                            {!member && (
+                              <MemberTooltip
+                                member={item.member}
+                                arrow
+                                PopperProps={{
+                                  onClick: e => e.stopPropagation(),
+                                }}>
+                                <div className="info-sec">
+                                  <Typography className="info-title" variant="subtitle1" component="span">
+                                    會員姓名 :&nbsp;
+                                  </Typography>
+                                  <Typography className="info-content" variant="subtitle1" component="span">
+                                    {item.member && item.member.name}
+                                  </Typography>
+                                </div>
+                              </MemberTooltip>
+                            )}
 
                             <div className="info-sec">
                               <Typography className="info-title" variant="subtitle1" component="span">
@@ -683,7 +729,7 @@ function ConsultationMange() {
             margin: 0,
           },
           '&.completed': {
-            bgcolor: 'grayscale.main',
+            bgcolor: 'text.fade',
           },
           '&.editing': {
             bgcolor: 'secondary.text',
@@ -701,7 +747,6 @@ function ConsultationMange() {
             bgcolor: 'background.light',
           },
         },
-
         '& .consultation-info': {
           color: 'text.light',
           justifyContent: {
@@ -733,13 +778,13 @@ function ConsultationMange() {
           '& .info-title': {
             fontWeight: 'bold',
           },
-          '& select': {
-            fontSize: '0.875rem',
+          '& .MuiSelect-select': {
+            py: 0.25,
+            bgcolor: alpha(theme.palette.background.paper, 0.2),
           },
-        },
-        '& .MuiSelect-select': {
-          py: 0.25,
-          bgcolor: 'background.paper',
+          '& .principal .MuiSelect-select': {
+            fontWeight: 'bold',
+          },
         },
         '& .control-group': {
           display: 'flex',
@@ -754,23 +799,35 @@ function ConsultationMange() {
           display: 'flex',
           alignItems: 'center',
           px: 0.75,
+          maxHeight: '3rem',
+          overflow: 'visible',
           '& .MuiButton-root': {
             mx: 0.5,
+            px: 3,
             bgcolor: 'background.paper',
+            border: `2px solid ${theme.palette.text.fade}`,
             fontWeight: 'bold',
             '&:hover': {
-              bgcolor: 'text.lighter',
+              bgcolor: alpha(theme.palette.background.paper, 0.9),
             },
           },
 
           '& .MuiButton-root.cancel-btn': {
-            bgcolor: alpha(theme.palette.background.paper, 0.75),
+            bgcolor: alpha(theme.palette.background.paper, 0.6),
             '&:hover': {
-              bgcolor: 'text.lighter',
+              bgcolor: alpha(theme.palette.background.paper, 0.5),
             },
           },
           '& .MuiIconButton-root': {
             color: 'text.light',
+          },
+          '& .MuiIconButton-root.obvious': {
+            ml: 1,
+            bgcolor: 'secondary.light',
+            border: `4px solid ${theme.palette.background.paper}`
+          },
+          '& .MuiIconButton-root.obvious svg': {
+            fontSize: '3rem',
           },
         },
         '& .accordion-content': {
@@ -790,6 +847,8 @@ function ConsultationMange() {
           lineHeight: 1.5,
           letterSpacing: '0.00938em',
           fontFamily: 'Roboto',
+          fontWeight: 'bold',
+          color: 'text.third',
         },
         '& .text-area.error': {
           border: `1px solid ${alpha(theme.palette.error.light, 0.6)}`,
@@ -839,8 +898,8 @@ function ConsultationMange() {
         '& .chip-wrapper.completed': {
           '& .MuiChip-root': { bgcolor: alpha(theme.palette.text.mid, 0.25) },
           '& .plain': {
-            color: alpha(theme.palette.text.mid, 0.25),
             bgcolor: 'inherit',
+            color: alpha(theme.palette.text.mid, 0.25),
             border: `1px solid ${alpha(theme.palette.text.mid, 0.25)}`,
           },
           '& .red': { bgcolor: alpha(theme.palette.jewelry.red, 0.25) },
@@ -858,12 +917,6 @@ function ConsultationMange() {
             alignItems: 'center',
             px: 1.5,
           },
-          // '& input': {
-          //   pl: 1,
-          //   width: '14rem',
-          //   border: '1px solid #cccccc',
-          //   borderRadius: '0.25em',
-          // },
           '& .MuiFormControl-root': {
             py: 1,
           },
@@ -884,7 +937,9 @@ function ConsultationMange() {
       <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold', pb: 1, color: 'text.secondary' }}>
         諮詢管理
       </Typography>
-      <MemberInfo sx={{ mb: 1 }} />
+
+      {member && <MemberInfo member={member} sx={{ mb: 1 }} />}
+
       <Box
         sx={{
           mb: 1,

@@ -64,9 +64,6 @@ const getDesignTokens = (mode) => ({
       lightBlue: '#a5dfff',
       // #ff8d6b
     },
-    grayscale: {
-      main: '#e6e6e6',
-    },
   },
 })
 

@@ -3,7 +3,8 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
-export default function MemberInfo(props) {
+export default function MemberInfo({ member, sx }) {
+
   return (
     <Paper
       elevation={0}
@@ -19,7 +20,7 @@ export default function MemberInfo(props) {
         '& .MuiTypography-subtitle1': {
           fontWeight: 'bold',
         },
-        ...props.sx,
+        ...sx,
       }}
     >
       <Grid container>
@@ -29,7 +30,7 @@ export default function MemberInfo(props) {
               會員代碼 :&nbsp;
             </Typography>
             <Typography variant="body1" component="span">
-              CU009999
+              {member.id}
             </Typography>
           </Grid>
           <Grid item>

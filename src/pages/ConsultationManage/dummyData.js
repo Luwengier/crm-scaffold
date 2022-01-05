@@ -5,6 +5,13 @@ const getSerialText = numb => {
 家他明像它次害古還黃汁節，新布和停，英哪王像百跑回，高助做寫海面氣封內馬金乾許花；升習十能書意足放一完${numb}。`
 }
 
+export const dummyMember = {
+  id: 'mb5787584',
+  name: '陳玉枝',
+  mobile: '0933445566',
+  address: '台北市士林區中山北路七段16巷28號',
+}
+
 export const dummyData = [
   {
     id: 't1',
@@ -12,6 +19,12 @@ export const dummyData = [
     text: getSerialText(1),
     remindStart: 1641465360000,
     remindEnd: 1643103000000,
+    member: {
+      id: 'mb57875847222',
+      name: '劉淑華',
+      mobile: '0967892255',
+      address: '台北市大安區建國南路二段125號',
+    },
     principal: {
       id: 'p1',
       name: '金小城',
@@ -44,6 +57,12 @@ export const dummyData = [
     isCompleted: false,
     text: getSerialText(2),
     remindStart: 1641465360000,
+    member: {
+      id: 'mb5787584',
+      name: '陳玉枝',
+      mobile: '0933445566',
+      address: '台北市士林區中山北路七段16巷28號',
+    },
     principal: {
       id: 'p2',
       name: '林昱梅',
@@ -73,6 +92,12 @@ export const dummyData = [
     text: getSerialText(3),
     remindStart: 1641465360000,
     remindEnd: 1643103000000,
+    member: {
+      id: 'mb57875847222',
+      name: '劉淑華',
+      mobile: '0967892255',
+      address: '台北市大安區建國南路二段125號',
+    },
     principal: {
       id: 'p3',
       name: '沈明傑',
@@ -97,6 +122,12 @@ export const dummyData = [
     isCompleted: false,
     text: getSerialText(4),
     remindStart: 1641465360000,
+    member: {
+      id: 'mb57875847222',
+      name: '劉淑華',
+      mobile: '0967892255',
+      address: '台北市大安區建國南路二段125號',
+    },
     principal: {
       id: 'p1',
       name: '金小城',
@@ -122,6 +153,12 @@ export const dummyData = [
     completedAt: 1641196284569,
     text: getSerialText(5),
     remindStart: 1641465360000,
+    member: {
+      id: 'mb57875847222',
+      name: '劉淑華',
+      mobile: '0967892255',
+      address: '台北市大安區建國南路二段125號',
+    },
     principal: {
       id: 'p1',
       name: '金小城',
@@ -151,6 +188,12 @@ export const dummyData = [
     completedAt: 1641196284569,
     text: getSerialText(6),
     remindStart: 1641465360000,
+    member: {
+      id: 'mb57875847222',
+      name: '劉淑華',
+      mobile: '0967892255',
+      address: '台北市大安區建國南路二段125號',
+    },
     principal: {
       id: 'p2',
       name: '林昱梅',
@@ -180,6 +223,12 @@ export const dummyData = [
     completedAt: 1641196284569,
     text: getSerialText(7),
     remindStart: 1641465360000,
+    member: {
+      id: 'mb57875847222',
+      name: '劉淑華',
+      mobile: '0967892255',
+      address: '台北市大安區建國南路二段125號',
+    },
     principal: {
       id: 'p1',
       name: '金小城',
@@ -205,6 +254,12 @@ export const dummyData = [
     completedAt: 1641196284569,
     text: getSerialText(8),
     remindStart: 1641465360000,
+    member: {
+      id: 'mb57875847222',
+      name: '劉淑華',
+      mobile: '0967892255',
+      address: '台北市大安區建國南路二段125號',
+    },
     principal: {
       id: 'p2',
       name: '林昱梅',
