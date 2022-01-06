@@ -7,10 +7,60 @@ const getSerialText = numb => {
 
 export const dummyMember = {
   id: 'mb5787584',
-  name: '陳玉枝',
+  name: '游妮妮',
   mobile: '0933445566',
   address: '台北市士林區中山北路七段16巷28號',
 }
+
+export const dummyMembers = [
+  {
+    name: '沈春華',
+    mobile: '0911111111',
+  },
+  {
+    name: '何麗恩',
+    mobile: '0922222222',
+    pets: [
+      {
+        id: 'pp1674',
+        name: '咪咪',
+        breed: 'Persian cat',
+      },
+    ]
+  },
+  {
+    name: '何雅琳',
+    mobile: '0922222233',
+  },
+  {
+    name: '何麗葳',
+    mobile: '0922222266',
+  },
+  {
+    name: '曾浩銘',
+    mobile: '0933333333',
+  },
+  {
+    name: '林曉琪',
+    mobile: '0966666666',
+  },
+  {
+    name: '童琦瑤',
+    mobile: '0955555555',
+    pets: [
+      {
+        id: 'pp1234',
+        name: '呱吉',
+        breed: 'Shiba',
+      },
+      {
+        id: 'pp5674',
+        name: '關關',
+        breed: 'Corgi',
+      },
+    ],
+  },
+]
 
 export const dummyData = [
   {
@@ -93,10 +143,25 @@ export const dummyData = [
     remindStart: 1641465360000,
     remindEnd: 1643103000000,
     member: {
-      id: 'mb57875847222',
-      name: '劉淑華',
-      mobile: '0967892255',
-      address: '台北市大安區建國南路二段125號',
+      name: '童琦瑤',
+      mobile: '0955555555',
+      pets: [
+        {
+          id: 'pp1234',
+          name: '呱吉',
+          breed: 'Shiba',
+        },
+        {
+          id: 'pp5674',
+          name: '關關',
+          breed: 'Corgi',
+        },
+      ],
+    },
+    pet: {
+      id: 'pp5674',
+      name: '關關',
+      breed: 'Corgi',
     },
     principal: {
       id: 'p3',
@@ -123,10 +188,20 @@ export const dummyData = [
     text: getSerialText(4),
     remindStart: 1641465360000,
     member: {
-      id: 'mb57875847222',
-      name: '劉淑華',
-      mobile: '0967892255',
-      address: '台北市大安區建國南路二段125號',
+      name: '何麗恩',
+      mobile: '0922222222',
+      pets: [
+        {
+          id: 'pp1674',
+          name: '咪咪',
+          breed: 'Persian cat',
+        },
+      ]
+    },
+    pet: {
+      id: 'pp1674',
+      name: '咪咪',
+      breed: 'Persian cat',
     },
     principal: {
       id: 'p1',

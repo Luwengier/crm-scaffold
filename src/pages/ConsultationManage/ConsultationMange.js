@@ -97,18 +97,21 @@ function ConsultationMange() {
   // 切換是否已完成
   const onCompletedToggle = item => e => {
     e.stopPropagation()
-    const newConsultations = consultations.map(consultation => {
-      return consultation.id === item.id
-        ? {
-          ...consultation,
-          ...((!consultation.isCompleted && !consultation.transferredAt) && { completedAt: new Date().getTime() }),
-          isCompleted: !consultation.isCompleted,
-          // isExpanded: consultation.isCompleted,
-        }
-        : consultation
-    })
+    setConsultations((prev) => (
+      prev.map(consultation => {
+        return consultation.id === item.id
+          ? {
+            ...consultation,
+            ...((!consultation.isCompleted && !consultation.transferredAt) && { completedAt: new Date().getTime() }),
+            ...(consultation.isCompleted && { isExpanded: true }),
+            isCompleted: !consultation.isCompleted,
+            // 下行可以在完成時順便縮合
+            // isExpanded: consultation.isCompleted,
+          }
+          : consultation
+      })
+    ))
     if (item.id === editingItem.id) setEditingItem({})
-    setConsultations(newConsultations)
   }
 
   // 開啟及關閉新增諮詢窗
@@ -421,10 +424,17 @@ function ConsultationMange() {
     if (isCompleted) {
       return item.transferredAt
         ? (
-          <div className="record-date">
-            <span className="obvious">轉派時間 :&nbsp;</span>
-            <span className="obvious">{getLocaleDateString(item.transferredAt)}</span>
-          </div>
+          <React.Fragment>
+            <div className="record-date">
+              <span className="obvious">轉派給 :&nbsp;</span>
+              <span className="obvious">新負責人</span>
+            </div>
+            <span>|</span>
+            <div className="record-date">
+              <span className="obvious">轉派時間 :&nbsp;</span>
+              <span className="obvious">{getLocaleDateString(item.transferredAt)}</span>
+            </div>
+          </React.Fragment>
         )
         : (
           <div className="record-date">
@@ -589,6 +599,17 @@ function ConsultationMange() {
                               </MemberTooltip>
                             )}
 
+                            {item.pet && (
+                              <div className="info-sec">
+                                <Typography className="info-title" variant="subtitle1" component="span">
+                                  寵物名 :&nbsp;
+                                </Typography>
+                                <Typography className="info-content" variant="subtitle1" component="span">
+                                  {item.pet.name}
+                                </Typography>
+                              </div>
+                            )}
+
                           </React.Fragment>
                         )
                         : (
@@ -638,9 +659,20 @@ function ConsultationMange() {
                               </MemberTooltip>
                             )}
 
+                            {item.pet && (
+                              <div className="info-sec">
+                                <Typography className="info-title" variant="subtitle1" component="span">
+                                  寵物名 :&nbsp;
+                                </Typography>
+                                <Typography className="info-content" variant="subtitle1" component="span">
+                                  {item.pet.name}
+                                </Typography>
+                              </div>
+                            )}
+
                             <div className="info-sec">
                               <Typography className="info-title" variant="subtitle1" component="span">
-                                {isCompleted ? '已完成' : '未完成'}
+                                {isCompleted ? (item.transferredAt ? '已轉派' : '已完成') : '未完成'}
                               </Typography>
                             </div>
                           </React.Fragment>
@@ -971,6 +1003,7 @@ function ConsultationMange() {
       <CreatePopover
         open={createOpen}
         anchorEl={anchorEl}
+        member={member}
         consultations={consultations}
         onClose={handleCreateClose}
         setConsultations={setConsultations}

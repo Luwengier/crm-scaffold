@@ -38,7 +38,7 @@ export default function MemberInfo({ member, sx }) {
               會員姓名 :&nbsp;
             </Typography>
             <Typography variant="body1" component="span">
-              游小姐
+              {member.name}
             </Typography>
           </Grid>
         </Grid>
@@ -57,7 +57,7 @@ export default function MemberInfo({ member, sx }) {
               行動電話 :&nbsp;
             </Typography>
             <Typography variant="body1" component="span">
-              0970123456
+              {member.mobile}
             </Typography>
           </Grid>
         </Grid>

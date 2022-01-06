@@ -39,11 +39,11 @@ const MemberTooltip = styled(({ className, member, ...props }) => (
     } />
 ))(({ theme }) => ({
   '& .MuiTooltip-arrow': {
-    color: theme.palette.text.lighter,
+    color: theme.palette.text.light,
   },
   '& .MuiTooltip-tooltip': {
     color: theme.palette.text.primary,
-    backgroundColor: theme.palette.text.lighter,
+    backgroundColor: theme.palette.text.light,
     boxShadow: theme.shadows[2],
   },
   '& .MuiTypography-root': {

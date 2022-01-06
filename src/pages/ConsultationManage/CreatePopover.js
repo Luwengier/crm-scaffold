@@ -6,14 +6,16 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Stack from '@mui/material/Stack'
+import Divider from '@mui/material/Divider'
 import Popover from '@mui/material/Popover'
-import MenuItem from '@mui/material/MenuItem';
+import MenuItem from '@mui/material/MenuItem'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
+import Autocomplete from '@mui/material/Autocomplete'
 import FormHelperText from '@mui/material/FormHelperText'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import DateTimePicker from '@mui/lab/DateTimePicker'
-import { principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
+import { principals, principalMapping, consultationCategories, dummyMembers, consultationMapping, minorPropertyTags, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
 
 const INITIAL_STATE = {
   remindStart: null,
@@ -21,9 +23,11 @@ const INITIAL_STATE = {
   propertyTags: [{ id: 'pt3', name: '一般' }],
 }
 
-function CreatePopover({ setConsultations, consultations, onClose, ...restProps }) {
+function CreatePopover({ setConsultations, consultations, member, onClose, ...restProps }) {
   const theme = useTheme()
   const [errors, setErrors] = useState({})
+  const [currentMember, setCurrentMember] = useState(null)
+  const [currentPet, setCurrentPet] = useState(null)
   const [creatingConsultation, setCreatingConsultation] = useState(INITIAL_STATE)
 
   const onImportantLevelRadio = targetTag => () => {
@@ -43,6 +47,16 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
         ? prev.propertyTags.filter(item => item.id !== targetTag.id)
         : [...prev.propertyTags, targetTag]
     }))
+  }
+
+  const onMemberChange = (e, optionValue) => {
+    // if (optionValue.pets) { setCurrentPets(optionValue.pets) }
+    setCurrentMember(optionValue)
+    setCurrentPet(null)
+  }
+
+  const onPetChange = (e, optionValue) => {
+    setCurrentPet(optionValue)
   }
 
   const onPrincipalChange = e => {
@@ -99,6 +113,7 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
 
   const validateConsultation = () => {
     const newErrors = {}
+    if (!member && !currentMember) newErrors.member = '會員為必填'
     if (!creatingConsultation.principal) newErrors.principal = '負責人為必填'
     if (!creatingConsultation.category) newErrors.category = '類別為必填'
     if (!creatingConsultation.text) newErrors.text = '文字內容為必填'
@@ -124,8 +139,10 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
         ...creatingConsultation,
         id: uuidv4(),
         isExpanded: true,
+        member: currentMember || member,
         remindStart: new Date(creatingConsultation.remindStart).getTime(),
         remindEnd: creatingConsultation.remindEnd ? new Date(creatingConsultation.remindEnd).getTime() : null,
+        ...(currentPet && { pet: currentPet }),
       },
       ...consultations,
     ]
@@ -180,16 +197,26 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
       PaperProps={{
         sx: {
           p: 2,
-          textAlign: 'center',
+          // textAlign: 'center',
           width: '90%',
           maxWidth: 350,
           bgcolor: 'background.light',
+          '& .option-wrapper': {
+            flexGrow: 1,
+            display: 'flex',
+            justifyContent: 'space-between',
+            '& .minor': {
+              fontSize: '0.875em',
+              letterSpacing: '0.04em',
+              color: 'text.secondary',
+            },
+          },
           '& .MuiTextField-root': {
             my: 1,
             width: '100%',
             '&.last-one': {
               mb: 2,
-            }
+            },
           },
           '& .MuiFormHelperText-root': {
             mx: 1.75,
@@ -208,8 +235,62 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
         新增諮詢
       </Typography>
 
+      {
+        !member && (
+          <Autocomplete
+            disablePortal
+            sx={{ width: '100%' }}
+            options={dummyMembers}
+            value={currentMember}
+            onChange={onMemberChange}
+            getOptionLabel={option => option.name}
+            renderInput={params => (
+              <TextField
+                required
+                label="會員名稱"
+                error={Boolean(errors.member)}
+                helperText={errors.member}
+                {...params} />
+            )}
+            renderOption={(props, option) => (
+              <div {...props} >
+                <div className="option-wrapper">
+                  <span>{option.name}</span>
+                  <span className="minor">{option.mobile}</span>
+                </div>
+              </div>
+            )}
+          />
+        )
+      }
+
+      {
+        (currentMember && currentMember.pets) && (
+          <Autocomplete
+            disablePortal
+            sx={{ width: '100%' }}
+            options={currentMember.pets}
+            value={currentPet}
+            onChange={onPetChange}
+            getOptionLabel={option => option.name}
+            renderInput={(params) => <TextField label="寵物名稱" {...params} />}
+            renderOption={(props, option) => (
+              <div {...props} >
+                <div className="option-wrapper">
+                  <span>{option.name}</span>
+                  <span className="minor">{option.breed}</span>
+                </div>
+              </div>
+            )}
+          />
+        )
+      }
+
+      {!member && (<Divider sx={{ my: 1 }} />)}
+
       <TextField
-        label="負責人 *"
+        label="負責人"
+        required
         select
         variant="outlined"
         error={Boolean(errors.principal)}
@@ -223,6 +304,7 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
 
       <TextField
         label="類別"
+        required
         select
         variant="outlined"
         error={Boolean(errors.category)}
@@ -235,7 +317,7 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
       </TextField>
 
       <DateTimePicker
-        renderInput={(props) => <TextField {...props} error={Boolean(errors.remindStart || props.error)} helperText={errors.remindStart} variant="outlined" />}
+        renderInput={(props) => <TextField required {...props} error={Boolean(errors.remindStart || props.error)} helperText={errors.remindStart} variant="outlined" />}
         minutesStep={5}
         label="提醒開始時間"
         value={creatingConsultation.remindStart}
@@ -259,7 +341,7 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
 
       <TextareaAutosize
         value={creatingConsultation.text || ''}
-        placeholder="請輸入文字內容"
+        placeholder="請輸入文字內容 *"
         onChange={onTextChange}
         maxRows={10}
         minRows={7}
@@ -338,15 +420,18 @@ function CreatePopover({ setConsultations, consultations, onClose, ...restProps 
         {renderMinorTagBtn(minorPropertyTags)}
       </Stack>
 
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={onConfirmClick}
-        sx={{ mt: 2, mb: 1, '&:hover': { bgcolor: 'secondary.light' } }}
-      >
-        確認
-      </Button>
-    </Popover>
+      <Box sx={{ textAlign: 'center' }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={onConfirmClick}
+          sx={{ mt: 2, mb: 1, '&:hover': { bgcolor: 'secondary.light' } }}
+        >
+          確認
+        </Button>
+      </Box>
+
+    </Popover >
   )
 }
 
