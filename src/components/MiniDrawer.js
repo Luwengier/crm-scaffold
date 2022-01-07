@@ -1,6 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Drawer as MuiDrawer, List, ListItemButton, ListItemIcon, ListItemText, Divider } from '@mui/material'
+import { Link } from 'react-router-dom'
 import InboxIcon from '@mui/icons-material/MoveToInbox'
 import MailIcon from '@mui/icons-material/Mail'
 import AudiotrackIcon from '@mui/icons-material/Audiotrack'
@@ -41,6 +42,11 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
       borderRight: 0,
       backgroundColor: '#fcfcfc',
     },
+
+    '& .MuiList-root a': {
+      textDecoration: 'none',
+      color: theme.palette.text.primary,
+    },
     '& .MuiListItemText-root': {
       overflow: 'hidden',
     },
@@ -80,14 +86,25 @@ export default function MiniDrawer() {
       </List>
       <Divider />
       <List>
-        {['Tik Tok', 'Trash'].map((text, index) => (
-          <ListItemButton key={text}>
-            <ListItemText primary={text} />
+
+        <Link to="/purchase-record">
+          <ListItemButton key={'Tik Tok'}>
+            <ListItemText primary={'Tik Tok'} />
             <ListItemIcon>
-              {index % 2 === 0 ? <AudiotrackIcon /> : <TwitterIcon />}
+              <AudiotrackIcon />
             </ListItemIcon>
           </ListItemButton>
-        ))}
+        </Link>
+
+        <Link to="/consultation">
+          <ListItemButton key={'Trash'}>
+            <ListItemText primary={'Trash'} />
+            <ListItemIcon>
+              <TwitterIcon />
+            </ListItemIcon>
+          </ListItemButton>
+        </Link>
+
       </List>
     </Drawer>
   )

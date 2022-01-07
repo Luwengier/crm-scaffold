@@ -44,10 +44,11 @@ export default function ItineraryListPopover(props) {
           variant="contained"
           onClick={onClose}
           sx={{
+            bgcolor: 'secondary.light',
             fontWeight: 'bold',
             color: 'grey.700',
             '&:hover': {
-              bgcolor: 'secondary.light',
+              bgcolor: 'secondary.main',
             },
           }}
         >

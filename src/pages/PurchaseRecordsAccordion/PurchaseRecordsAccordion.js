@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { TransitionGroup } from 'react-transition-group'
 import { useTheme } from '@mui/material/styles'
-import Zoom from '@mui/material/Zoom'
+import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Accordion from '@mui/material/Accordion'
@@ -11,10 +11,16 @@ import Pagination from '@mui/material/Pagination'
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
 import MemberInfo from '../../components/MemberInfo'
 import orderData from './orderData'
+import { dummyMember } from '../ConsultationManage/dummyData'
 
 function ConsultationAccordion() {
   // const [expanded, setExpanded] = useState('panel1')
   const theme = useTheme()
+  const [data, setData] = useState(null)
+
+  useEffect(() => {
+    setData(orderData)
+  }, [])
 
   // const handleChange = panel => (e, newExpanded) => {
   //   setExpanded(newExpanded ? panel : false)
@@ -38,7 +44,7 @@ function ConsultationAccordion() {
 
   const renderAccordion = data => {
     return data && data.map((item, index) => (
-      <Zoom key={item.id} timeout={500}>
+      <Collapse key={item.id} timeout={500}>
         <Accordion
           disableGutters
           elevation={0}
@@ -175,7 +181,7 @@ function ConsultationAccordion() {
             </Box>
           </AccordionDetails>
         </Accordion>
-      </Zoom>
+      </Collapse>
     ))
   }
 
@@ -184,7 +190,8 @@ function ConsultationAccordion() {
       sx={{
         py: { xs: 2, sm: 5 },
         px: { xs: 2, sm: 4 },
-        '& .MuiAccordion-root': {
+        '& .accordion-list .MuiAccordion-root': {
+          mb: 1,
           overflow: 'auto',
           border: `1px solid ${theme.palette.divider}`,
           borderTop: 0,
@@ -395,10 +402,10 @@ function ConsultationAccordion() {
       <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', pb: 1 }}>
         購買紀錄
       </Typography>
-      <MemberInfo />
-      <Box sx={{ borderRadius: '0.5rem', overflow: 'auto' }}>
+      <MemberInfo member={dummyMember} />
+      <Box className="accordion-list" sx={{ borderRadius: '0.5rem', overflow: 'auto' }}>
         <TransitionGroup>
-          {renderAccordion(orderData)}
+          {renderAccordion(data)}
         </TransitionGroup>
       </Box>
       <Pagination count={10} shape="rounded" />

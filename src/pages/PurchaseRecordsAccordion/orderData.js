@@ -1,6 +1,6 @@
 const orderDetails = [
   {
-    ID: 'OR88888888881',
+    id: 'OR88888888881',
     storeName: '老先覺旁邊的寵物店',
     timestamp: 1633104000000,
     receivedAmounts: {
@@ -56,7 +56,7 @@ const orderDetails = [
     ]
   },
   {
-    ID: 'OR88888888882',
+    id: 'OR88888888882',
     storeName: '老先覺旁邊的寵物店',
     timestamp: 1633108320000,
     receivedAmounts: {
@@ -113,7 +113,7 @@ const orderDetails = [
 
   },
   {
-    ID: 'OR88888888883',
+    id: 'OR88888888883',
     storeName: '老先覺旁邊的寵物店',
     timestamp: 1633112640000,
     receivedAmounts: {
@@ -170,7 +170,7 @@ const orderDetails = [
 
   },
   {
-    ID: 'OR88888888884',
+    id: 'OR88888888884',
     storeName: '老先覺旁邊的寵物店',
     timestamp: 1633116960000,
     receivedAmounts: {
@@ -227,7 +227,7 @@ const orderDetails = [
 
   },
   {
-    ID: 'OR88888888885',
+    id: 'OR88888888885',
     storeName: '老先覺旁邊的寵物店',
     timestamp: 1633121280000,
     receivedAmounts: {

@@ -140,8 +140,9 @@ export default function ItineraryCreatePopover(props) {
           sx={{
             fontWeight: 'bold',
             color: 'grey.700',
+            bgcolor: 'secondary.light',
             '&:hover': {
-              bgcolor: 'secondary.light',
+              bgcolor: 'secondary.main',
             },
           }}
         >

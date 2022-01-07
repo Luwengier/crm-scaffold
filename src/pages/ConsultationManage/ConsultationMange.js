@@ -29,6 +29,7 @@ import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import MemberInfo from '../../components/MemberInfo'
 import MemberTooltip from './MemberTooltip'
+import PetTooltip from './PetTooltip'
 import DisplayToggleButton from './DisplayToggleButton'
 import CreatePopover from './CreatePopover'
 import DeletePopover from './DeletePopover'
@@ -309,9 +310,14 @@ function ConsultationMange() {
   const renderIconButton = (item, isCompleted, isEditing) => {
     if (isCompleted) {
       return (
-        <IconButton aria-label="edit" onClick={onCompletedToggle(item)}>
-          <ReplayOutlinedIcon />
-        </IconButton>
+        <React.Fragment>
+          <IconButton aria-label="delete" onClick={handleDeleteClick} data-id={item.id}>
+            <DeleteOutlineIcon />
+          </IconButton>
+          <IconButton aria-label="edit" onClick={onCompletedToggle(item)}>
+            <ReplayOutlinedIcon />
+          </IconButton>
+        </React.Fragment>
       )
     } else if (isEditing) {
       return (
@@ -511,10 +517,14 @@ function ConsultationMange() {
     }
   }
 
+  const currentTimestamp = new Date().getTime()
+
   const renderConsultations = data => {
     return data.map((item, index) => {
       const isCompleted = item.isCompleted ? ' completed' : ''
       const isEditing = (editingItem.id === item.id) && !item.isCompleted ? ' editing' : ''
+
+      const isExpired = item.remindEnd && (item.remindEnd < currentTimestamp) ? 'expired' : ''
 
       return (
         <Collapse key={item.id} timeout={500}>
@@ -528,7 +538,7 @@ function ConsultationMange() {
               // defaultExpanded={!Boolean(isCompleted)}
               key={index}
             >
-              <AccordionSummary className={`${isCompleted}${isEditing}`} expandIcon={null}>
+              <AccordionSummary className={`${isExpired}${isCompleted}${isEditing}`} expandIcon={null}>
                 <Grid container className="consultation-info">
 
                   <Grid item className="info-group">
@@ -600,14 +610,22 @@ function ConsultationMange() {
                             )}
 
                             {item.pet && (
-                              <div className="info-sec">
-                                <Typography className="info-title" variant="subtitle1" component="span">
-                                  寵物名 :&nbsp;
-                                </Typography>
-                                <Typography className="info-content" variant="subtitle1" component="span">
-                                  {item.pet.name}
-                                </Typography>
-                              </div>
+                              <PetTooltip
+                                pet={item.pet}
+                                arrow
+                                PopperProps={{
+                                  onClick: e => e.stopPropagation(),
+                                }}
+                              >
+                                <div className="info-sec">
+                                  <Typography className="info-title" variant="subtitle1" component="span">
+                                    寵物名 :&nbsp;
+                                  </Typography>
+                                  <Typography className="info-content" variant="subtitle1" component="span">
+                                    {item.pet.name}
+                                  </Typography>
+                                </div>
+                              </PetTooltip>
                             )}
 
                           </React.Fragment>
@@ -660,19 +678,27 @@ function ConsultationMange() {
                             )}
 
                             {item.pet && (
-                              <div className="info-sec">
-                                <Typography className="info-title" variant="subtitle1" component="span">
-                                  寵物名 :&nbsp;
-                                </Typography>
-                                <Typography className="info-content" variant="subtitle1" component="span">
-                                  {item.pet.name}
-                                </Typography>
-                              </div>
+                              <PetTooltip
+                                pet={item.pet}
+                                arrow
+                                PopperProps={{
+                                  onClick: e => e.stopPropagation(),
+                                }}
+                              >
+                                <div className="info-sec">
+                                  <Typography className="info-title" variant="subtitle1" component="span">
+                                    寵物名 :&nbsp;
+                                  </Typography>
+                                  <Typography className="info-content" variant="subtitle1" component="span">
+                                    {item.pet.name}
+                                  </Typography>
+                                </div>
+                              </PetTooltip>
                             )}
 
                             <div className="info-sec">
                               <Typography className="info-title" variant="subtitle1" component="span">
-                                {isCompleted ? (item.transferredAt ? '已轉派' : '已完成') : '未完成'}
+                                {isCompleted ? (item.transferredAt ? '已轉派' : '已完成') : (isExpired ? '已超時' : '未完成')}
                               </Typography>
                             </div>
                           </React.Fragment>
@@ -760,11 +786,14 @@ function ConsultationMange() {
           '& .MuiAccordionSummary-content': {
             margin: 0,
           },
+          '&.expired': {
+            bgcolor: alpha(theme.palette.primary.text, 0.6),
+          },
           '&.completed': {
             bgcolor: 'text.fade',
           },
           '&.editing': {
-            bgcolor: 'secondary.text',
+            bgcolor: 'primary.bg',
           },
           '&.editing .consultation-info': {
             color: 'text.secondary',
@@ -1001,6 +1030,7 @@ function ConsultationMange() {
         </Button>
       </Box>
       <CreatePopover
+        disableEscapeKeyDown
         open={createOpen}
         anchorEl={anchorEl}
         member={member}

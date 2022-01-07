@@ -10,12 +10,12 @@ const getDesignTokens = (mode) => ({
   palette: {
     mode,
     primary: {
-      bg: '#c8e1df',
+      bg: '#f8f9a4',
       main: teal[300],
+      text: '#5590ac',
       ...(mode === 'dark' && {
         main: teal[700],
       }),
-      text: '#5590ac',
     },
     secondary: {
       bg: '#fdffcf',
