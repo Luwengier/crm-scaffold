@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { TransitionGroup } from 'react-transition-group'
-import { useTheme } from '@mui/material/styles'
+import { useTheme, alpha } from '@mui/material/styles'
 import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -228,7 +228,7 @@ function ConsultationAccordion() {
             justifyContent: 'center',
           },
           '& .MuiPaginationItem-root.Mui-selected': {
-            backgroundColor: 'secondary.bg',
+            backgroundColor: alpha(theme.palette.secondary.light, 0.2),
           },
         },
         '& .order-info-wrapper': {
