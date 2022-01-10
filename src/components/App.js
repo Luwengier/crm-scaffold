@@ -8,6 +8,7 @@ import ItineraryReminder from './ItineraryReminder'
 const Home = lazy(() => import('../pages/HomePage/Home'))
 const PurchaseRecordsAccordion = lazy(() => import('../pages/PurchaseRecordsAccordion/PurchaseRecordsAccordion'))
 const ConsultationManage = lazy(() => import('../pages/ConsultationManage/ConsultationMange'))
+const TestCalendar = lazy(() => import('../pages/TestCalendar/TestCalendar'))
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
               <Route exact path="/" element={<Home />} />
               <Route exact path="/purchase-record" element={<PurchaseRecordsAccordion />} />
               <Route exact path="/consultation" element={<ConsultationManage />} />
+              <Route exact path="/calendar" element={<TestCalendar />} />
             </Routes>
           </Suspense>
         </Box>
