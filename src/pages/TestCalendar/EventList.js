@@ -13,10 +13,19 @@ function EventList() {
       px: 2,
       pt: 2,
       pb: 4,
+      mx: 1,
+      mb: 2,
       position: 'relative',
-      bgcolor: alpha(theme.palette.primary.light, 0.25),
+      bgcolor: alpha(theme.palette.primary.light, 0.1),
       '& .MuiCardHeader-content': {
         minWidth: 0,
+      },
+      '& .MuiCardHeader-action': {
+        display: 'flex',
+        flexDirection: 'column',
+      },
+      '& .card-content': {
+        px: 2,
       },
       // '& .delete-btn': {
       //   top: 0,

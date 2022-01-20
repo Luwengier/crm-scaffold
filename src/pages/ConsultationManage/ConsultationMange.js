@@ -31,6 +31,7 @@ import MemberInfo from '../../components/MemberInfo'
 import MemberTooltip from './MemberTooltip'
 import PetTooltip from './PetTooltip'
 import DisplayToggleButton from './DisplayToggleButton'
+import CategoryToggleButton from './CategoryToggleButton'
 import CreatePopover from './CreatePopover'
 import DeletePopover from './DeletePopover'
 import { dummyMember, dummyData, principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_CLASS_MAPPING, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
@@ -47,13 +48,25 @@ const getLocaleDateString = timestamp => {
 }
 
 // 過濾資料內容
-const filterDate = (data, selected) => {
+const filterData = (data, selected) => {
   if (!selected) { return data }
   else if (selected === 'undone') {
     return data.filter(item => !item.isCompleted)
-  } else if (selected === 'done') {
+  }
+  else if (selected === 'done') {
     return data.filter(item => item.isCompleted)
   }
+  else if (selected === 'transferred') {
+    return data.filter(item => item.transferredAt)
+  }
+  else {
+    return []
+  }
+}
+
+const filterCategory = (data, selected) => {
+  if (!selected) { return data }
+  return data.filter(item => item.category.id === selected)
 }
 
 function ConsultationMange() {
@@ -65,6 +78,7 @@ function ConsultationMange() {
   const [anchorEl, setAnchorEl] = useState(null)
   const [deleteEl, setDeleteEl] = useState(null)
   const [selectedDisplay, setSelectedDisplay] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
 
   const [searchParams] = useSearchParams()
   const memberId = searchParams.get('memberId')
@@ -77,8 +91,10 @@ function ConsultationMange() {
   }, [memberId])
 
   const filteredData = useMemo(() => {
-    return consultations ? filterDate(consultations, selectedDisplay) : []
-  }, [consultations, selectedDisplay])
+    return consultations
+      ? filterCategory(filterData(consultations, selectedDisplay), selectedCategory)
+      : []
+  }, [consultations, selectedDisplay, selectedCategory])
 
   // 切換展開
   const onExpandedChange = (id, isEditing) => (event, isExpanded) => {
@@ -93,6 +109,10 @@ function ConsultationMange() {
     if (newSelectedDisplay !== null) {
       setSelectedDisplay(newSelectedDisplay);
     }
+  }
+
+  const onSelectCategory = e => {
+    setSelectedCategory(e.target.value)
   }
 
   // 切換是否已完成
@@ -710,7 +730,7 @@ function ConsultationMange() {
 
                   <Grid className="control-group" item>
                     {/* <Box className="id-field">
-                      hu2chuei-3rd5-34dv-3nml
+                      hu2chuie-3rd5-34dv-3nml
                     </Box> */}
                     <Box className="icon-field">
                       {renderIconButton(item, isCompleted, isEditing)}
@@ -761,12 +781,12 @@ function ConsultationMange() {
     <Box
       sx={{
         py: { xs: 2, sm: 3 },
-        px: { xs: 2, sm: 4 },
+        px: { xs: 2, sm: 4, lg: 10 },
         '& .accordion-wrapper': {
           overflow: 'auto',
           borderRadius: '0.5rem',
           border: `1px solid ${theme.palette.divider}`,
-          mb: 3,
+          mb: 4,
         },
         '& .MuiAccordion-root': {
           '&:before': {
@@ -919,6 +939,7 @@ function ConsultationMange() {
         },
         '& .accordion-actions': {
           display: 'flex',
+          flexWrap: 'wrap',
           justifyContent: 'space-between',
           bgcolor: 'grey.100',
         },
@@ -999,21 +1020,27 @@ function ConsultationMange() {
         諮詢管理
       </Typography>
 
-      {member && <MemberInfo member={member} sx={{ mb: 1 }} />}
+      {member && <MemberInfo member={member} />}
 
       <Box
         sx={{
-          mb: 1,
+          mb: 2,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <DisplayToggleButton
-          selected={selectedDisplay}
-          setSelected={setSelectedDisplay}
-          onSelected={onSelectDisplay}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <DisplayToggleButton
+            selected={selectedDisplay}
+            onSelected={onSelectDisplay}
+          />
+          <CategoryToggleButton
+            selected={selectedCategory}
+            onSelected={onSelectCategory}
+          />
+        </Box>
+
         <Button
           variant="outlined"
           color="secondary"
@@ -1029,6 +1056,7 @@ function ConsultationMange() {
           新增諮詢紀錄
         </Button>
       </Box>
+
       <CreatePopover
         disableEscapeKeyDown
         open={createOpen}
@@ -1038,16 +1066,32 @@ function ConsultationMange() {
         onClose={handleCreateClose}
         setConsultations={setConsultations}
       />
+
       <DeletePopover
         open={deleteOpen}
         anchorEl={deleteEl}
         onClose={handleDeleteClose}
         onDeleteConfirm={onDeleteConfirm}
       />
+
       <Box sx={{ overflow: 'auto', pb: 6 }}>
+
         <TransitionGroup>
           {renderConsultations(filteredData)}
         </TransitionGroup>
+
+        {(filteredData.length <= 0) && (
+          <Typography variant="h3" sx={{
+            pt: 10,
+            fontWeight: 'bold',
+            textAlign: 'center',
+            letterSpacing: '0.1em',
+            color: 'text.fade',
+          }}>
+            無相關資料
+          </Typography>
+        )
+        }
       </Box>
     </Box>
   )

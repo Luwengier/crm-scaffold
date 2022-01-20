@@ -175,7 +175,8 @@ export const dummyData = [
   },
   {
     id: 'c3',
-    isCompleted: false,
+    isCompleted: true,
+    completedAt: 1641196284569,
     text: getSerialText(3),
     remindStart: 1641465360000,
     remindEnd: 1643103000000,
@@ -221,39 +222,6 @@ export const dummyData = [
     ],
   },
   {
-    id: 'a678d019-c287-4c32-83d1-aee804362222',
-    text: 'It is an Expired Consultation.\n\n它是個超時提醒。\n\n',
-    isExpanded: true,
-    remindStart: 1641276613000,
-    remindEnd: 1641363019000,
-    member: {
-      name: '曾浩銘',
-      mobile: '0933333333'
-    },
-    propertyTags: [
-      {
-        id: 'bvd234',
-        name: '自訂',
-      },
-      {
-        id: 'pt4',
-        name: '次要'
-      },
-      {
-        id: 'pt1',
-        name: '急'
-      }
-    ],
-    principal: {
-      id: 'p1',
-      name: '金小城'
-    },
-    category: {
-      id: 't1',
-      name: '商品諮詢'
-    },
-  },
-  {
     id: 'c4',
     isCompleted: false,
     text: getSerialText(4),
@@ -292,6 +260,39 @@ export const dummyData = [
         name: '派發工單',
       },
     ],
+  },
+  {
+    id: 'a678d019-c287-4c32-83d1-aee804362222',
+    text: 'It is an Expired Consultation.\n\n它是個超時提醒。\n\n',
+    isExpanded: true,
+    remindStart: 1641276613000,
+    remindEnd: 1641363019000,
+    member: {
+      name: '曾浩銘',
+      mobile: '0933333333'
+    },
+    propertyTags: [
+      {
+        id: 'bvd234',
+        name: '自訂',
+      },
+      {
+        id: 'pt4',
+        name: '次要'
+      },
+      {
+        id: 'pt1',
+        name: '急'
+      }
+    ],
+    principal: {
+      id: 'p1',
+      name: '金小城'
+    },
+    category: {
+      id: 't1',
+      name: '商品諮詢'
+    },
   },
   {
     id: 'c5',
@@ -366,7 +367,8 @@ export const dummyData = [
   {
     id: 'c7',
     isCompleted: true,
-    completedAt: 1641196284569,
+    completedAt: 1641094284569,
+    transferredAt: 1641094284569,
     text: getSerialText(7),
     remindStart: 1641465360000,
     member: {
@@ -397,9 +399,9 @@ export const dummyData = [
   {
     id: 'c8',
     isCompleted: true,
-    completedAt: 1641196284569,
+    completedAt: 1640996284569,
     text: getSerialText(8),
-    remindStart: 1641465360000,
+    remindStart: 1640865360000,
     member: {
       id: 'mb57875847222',
       name: '劉淑華',
@@ -457,11 +459,26 @@ export const consultationCategories = [
     id: 't2',
     name: '客訴案件',
   },
+  {
+    id: 't3',
+    name: '活動推廣',
+  },
+  {
+    id: 't4',
+    name: '商品下單',
+  },
+  {
+    id: 't5',
+    name: '其他',
+  },
 ]
 
 export const consultationMapping = {
   't1': '商品諮詢',
   't2': '客訴案件',
+  't3': '活動推廣',
+  't4': '商品下單',
+  't5': '其他',
 }
 
 export const minorPropertyTags = [

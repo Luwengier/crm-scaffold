@@ -9,7 +9,7 @@ export default function MemberInfo({ member, sx }) {
     <Paper
       elevation={0}
       sx={{
-        mb: 3,
+        mb: 2,
         p: { xs: 4, sm: 1 },
         bgcolor: 'info.bg',
         border: (theme) => `3px solid ${theme.palette.grey[100]}`,

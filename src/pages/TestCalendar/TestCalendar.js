@@ -15,20 +15,23 @@ const DemoApp = () => {
       display: 'flex',
       width: '90%',
       p: 2,
-      m: '0 auto',
       '& .fc-media-screen': {
         flexGrow: 1,
+        padding: 2,
+        bgcolor: 'background.paper',
       },
       '& .fc-event-wrapper': {
         my: 1,
       },
       '& .fc-event': {
+        px: 1,
         borderRadius: '0.5rem',
         color: 'text.light',
         borderColor: 'primary.main',
         bgcolor: 'primary.main',
       },
-    }}>
+    }
+    } >
       <Box sx={{ flex: '0 0 25%', minWidth: 0 }}>
         <EventList />
         <EventPool />
@@ -43,8 +46,11 @@ const DemoApp = () => {
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         }}
+        drop={function (info) {
+          info.draggedEl.parentNode.removeChild(info.draggedEl);
+        }}
       />
-    </Box>
+    </Box >
   )
 
 }

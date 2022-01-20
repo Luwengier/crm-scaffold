@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <Box
       sx={{
-        py: { xs: 2, sm: 5 },
+        py: { xs: 2, sm: 4 },
         px: { xs: 2, sm: 4 },
       }}
     >
