@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { omit } from 'lodash-es'
+import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useTheme } from '@mui/material/styles'
 import Button from '@mui/material/Button'
@@ -15,7 +14,8 @@ import Autocomplete from '@mui/material/Autocomplete'
 import FormHelperText from '@mui/material/FormHelperText'
 import TextareaAutosize from '@mui/material/TextareaAutosize'
 import DateTimePicker from '@mui/lab/DateTimePicker'
-import { principals, principalMapping, consultationCategories, dummyMembers, consultationMapping, minorPropertyTags, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
+import { dummyMembers, principals, consultationCategories, minorPropertyTags, IMPORTANT_LEVELS } from './dummyData'
+import { useConsultationForm } from '../../hooks/useConsultationForm'
 
 const INITIAL_STATE = {
   remindStart: null,
@@ -25,91 +25,22 @@ const INITIAL_STATE = {
 
 function CreatePopover({ setConsultations, consultations, member, onClose, ...restProps }) {
   const theme = useTheme()
-  const [errors, setErrors] = useState({})
-  const [currentMember, setCurrentMember] = useState(null)
-  const [currentPet, setCurrentPet] = useState(null)
-  const [creatingConsultation, setCreatingConsultation] = useState(INITIAL_STATE)
-
-  const onImportantLevelRadio = targetTag => () => {
-    if (creatingConsultation.propertyTags.some(item => item.id === targetTag.id)) return
-    const clearedPropertyTag = creatingConsultation.propertyTags.filter(item => !IMPORTANT_LEVEL_IDS.includes(item.id))
-
-    setCreatingConsultation((prev) => ({
-      ...prev,
-      propertyTags: [...clearedPropertyTag, targetTag]
-    }))
-  }
-
-  const onTagToggle = targetTag => () => {
-    setCreatingConsultation((prev) => ({
-      ...prev,
-      propertyTags: prev.propertyTags.some(item => item.id === targetTag.id)
-        ? prev.propertyTags.filter(item => item.id !== targetTag.id)
-        : [...prev.propertyTags, targetTag]
-    }))
-  }
-
-  const onMemberChange = (e, optionValue) => {
-    // if (optionValue.pets) { setCurrentPets(optionValue.pets) }
-    setCurrentMember(optionValue)
-    setCurrentPet(null)
-  }
-
-  const onPetChange = (e, optionValue) => {
-    setCurrentPet(optionValue)
-  }
-
-  const onPrincipalChange = e => {
-    setErrors(omit(errors, 'principal'))
-    setCreatingConsultation((prev) => ({
-      ...prev,
-      principal: {
-        ...prev.principal,
-        id: e.target.value,
-        name: principalMapping[e.target.value]
-      },
-    }))
-  }
-
-  const onCategoryChange = e => {
-    setErrors(omit(errors, 'category'))
-    setCreatingConsultation((prev) => ({
-      ...prev,
-      category: {
-        ...prev.category,
-        id: e.target.value,
-        name: consultationMapping[e.target.value]
-      },
-    }))
-  }
-
-  const onRemindChange = name => newValue => {
-    setErrors(omit(errors, name))
-    setCreatingConsultation((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }))
-    // if (newValue instanceof Date && !isNaN(newValue)) {
-    //   setErrors(omit(errors, name))
-    //   setCreatingConsultation((prev) => ({
-    //     ...prev,
-    //     [name]: new Date(newValue).getTime(),
-    //   }))
-    // } else {
-    //   setCreatingConsultation((prev) => ({
-    //     ...prev,
-    //     [name]: null,
-    //   }))
-    // }
-  }
-
-  const onTextChange = e => {
-    setErrors(omit(errors, 'text'))
-    setCreatingConsultation((prev) => ({
-      ...prev,
-      text: e.target.value,
-    }))
-  }
+  const {
+    errors,
+    setErrors,
+    currentMember,
+    currentPet,
+    creatingConsultation,
+    setCreatingConsultation,
+    onImportantLevelRadio,
+    onTagToggle,
+    onMemberChange,
+    onPetChange,
+    onPrincipalChange,
+    onCategoryChange,
+    onRemindChange,
+    onTextChange,
+  } = useConsultationForm(INITIAL_STATE)
 
   const validateConsultation = () => {
     const newErrors = {}

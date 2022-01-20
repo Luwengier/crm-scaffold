@@ -1,16 +1,117 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useTheme } from '@mui/material/styles'
-import { TextField, TextareaAutosize, Typography, Popover, Paper, Button, Box, MenuItem } from '@mui/material'
+import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
+import Chip from '@mui/material/Chip'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import Popover from '@mui/material/Popover'
+import MenuItem from '@mui/material/MenuItem'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import Autocomplete from '@mui/material/Autocomplete'
+import FormHelperText from '@mui/material/FormHelperText'
+import TextareaAutosize from '@mui/material/TextareaAutosize'
 import DateTimePicker from '@mui/lab/DateTimePicker'
+import { useConsultationForm } from '../hooks/useConsultationForm'
+
+import { dummyMembers, principals, consultationCategories, minorPropertyTags, IMPORTANT_LEVELS } from '../pages/ConsultationManage/dummyData'
+
+const INITIAL_STATE = {
+  remindStart: null,
+  remindEnd: null,
+  propertyTags: [{ id: 'pt3', name: '一般' }],
+}
 
 export default function ItineraryCreatePopover(props) {
   const { open, onClose } = props
-  const [value, setValue] = useState(new Date())
-  const [reminderType, setReminderType] = useState('')
   const theme = useTheme()
+  const {
+    errors,
+    // setErrors,
+    currentMember,
+    currentPet,
+    creatingConsultation,
+    // setCreatingConsultation,
+    onImportantLevelRadio,
+    onTagToggle,
+    onMemberChange,
+    onPetChange,
+    onPrincipalChange,
+    onCategoryChange,
+    onRemindChange,
+    onTextChange,
+  } = useConsultationForm(INITIAL_STATE)
 
-  const handleChange = (event) => {
-    setReminderType(event.target.value)
+  // const validateConsultation = () => {
+  //   const newErrors = {}
+  //   if (!member && !currentMember) newErrors.member = '會員為必填'
+  //   if (!creatingConsultation.principal) newErrors.principal = '負責人為必填'
+  //   if (!creatingConsultation.category) newErrors.category = '類別為必填'
+  //   if (!creatingConsultation.text) newErrors.text = '文字內容為必填'
+
+  //   if (!creatingConsultation.remindStart) {
+  //     newErrors.remindStart = '提醒開始時間為必填'
+  //   } else if (!(creatingConsultation.remindStart instanceof Date) || isNaN(creatingConsultation.remindStart)) {
+  //     newErrors.remindStart = '時間格式錯誤'
+  //   }
+  //   if (creatingConsultation.remindEnd && (
+  //     !(creatingConsultation.remindEnd instanceof Date) || isNaN(creatingConsultation.remindEnd)
+  //   )) {
+  //     newErrors.remindEnd = '時間格式錯誤，若無需要請清空'
+  //   }
+  //   setErrors(newErrors)
+  //   return Object.keys(newErrors).length > 0
+  // }
+
+  // const onConfirmClick = () => {
+  //   if (validateConsultation()) return
+  //   const newConsultations = [
+  //     {
+  //       ...creatingConsultation,
+  //       id: uuidv4(),
+  //       isExpanded: true,
+  //       member: currentMember || member,
+  //       remindStart: new Date(creatingConsultation.remindStart).getTime(),
+  //       remindEnd: creatingConsultation.remindEnd ? new Date(creatingConsultation.remindEnd).getTime() : null,
+  //       ...(currentPet && { pet: currentPet }),
+  //     },
+  //     ...consultations,
+  //   ]
+  //   setConsultations(newConsultations)
+  //   setCreatingConsultation(INITIAL_STATE)
+  //   onClose()
+  // }
+
+  const renderCategoryOptions = categories => {
+    return categories.map(category => (
+      <MenuItem value={category.id} key={category.id}>
+        {category.name}
+      </MenuItem>
+    ))
+  }
+
+  const renderPrincipalOptions = principals => {
+    return principals.map(principal => (
+      <MenuItem value={principal.id} key={principal.id}>
+        {principal.name}
+      </MenuItem>
+    ))
+  }
+
+  const judgeActive = targetTag => {
+    return creatingConsultation.propertyTags.some(item => item.id === targetTag.id) ? 'active' : ''
+  }
+
+  const renderMinorTagBtn = minorPropertyTags => {
+    return minorPropertyTags.map(propertyTag => {
+      const active = creatingConsultation.propertyTags.some(item => item.id === propertyTag.id)
+        ? 'active'
+        : ''
+      return (
+        <Chip className={active} key={propertyTag.id} label={propertyTag.name} size="small" onClick={onTagToggle(propertyTag)} />
+      )
+    })
   }
 
   return (
@@ -32,34 +133,35 @@ export default function ItineraryCreatePopover(props) {
           bgcolor: 'rgb(253 254 255 / 75%)',
           '& .MuiTextField-root': {
             width: '100%',
-            mb: 4,
+            my: 1.5,
+            '&.for-date': {
+              mt: 2,
+            },
+            '&.last-one': {
+              mb: 6,
+            },
           },
-          '& .MuiTextField-root:first-of-type': {
-            mt: 1,
-          },
-          // '& .date-input': {
-          //   mt: 1,
-          //   width: '100%',
-          //   border: 'none',
-          //   color: '#212121',
-          //   borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
-          //   fontSize: '1rem',
-          //   fontFamily: 'Roboto',
-          //   lineHeight: '1.625em',
-          //   outlineColor: theme.palette.primary.main,
-          // },
-          // '& .MuiInputLabel-root.Mui-focused': {
-          //   color: 'secondary.main',
-          // },
-          // '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-          //   borderColor: 'secondary.main',
-          // },
         },
       }}
     >
 
       <Paper sx={{
-        p: 2, flexGrow: 1, boxShadow: 2, display: 'flex', flexDirection: 'column', bgcolor: 'background.light',
+        p: 2,
+        flexGrow: 1,
+        boxShadow: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.light',
+        '& .option-wrapper': {
+          flexGrow: 1,
+          display: 'flex',
+          justifyContent: 'space-between',
+          '& .minor': {
+            fontSize: '0.875em',
+            letterSpacing: '0.04em',
+            color: 'text.secondary',
+          },
+        },
       }}>
         <Box sx={{ flexGrow: 1 }}>
           <Typography
@@ -69,42 +171,141 @@ export default function ItineraryCreatePopover(props) {
             新增提醒
           </Typography>
 
-          <TextField id="standard-basic" label="客戶姓名 *" variant="standard" />
+          <Autocomplete
+            disablePortal
+            sx={{ width: '100%' }}
+            options={dummyMembers}
+            value={currentMember}
+            onChange={onMemberChange}
+            getOptionLabel={option => option.name}
+            renderInput={params => (
+              <TextField
+                label="客戶名稱"
+                variant="standard"
+                // error={Boolean(errors.member)}
+                // helperText={errors.member}
+                {...params} />
+            )}
+            renderOption={(props, option) => (
+              <div {...props} >
+                <div className="option-wrapper">
+                  <span>{option.name}</span>
+                  <span className="minor">{option.mobile}</span>
+                </div>
+              </div>
+            )}
+          />
 
-          <TextField id="standard-basic" label="寵物名" variant="standard" />
+          <Autocomplete
+            disablePortal
+            sx={{ width: '100%' }}
+            options={dummyMembers}
+            value={currentMember}
+            onChange={onMemberChange}
+            getOptionLabel={option => option.mobile}
+            renderInput={params => (
+              <TextField
+                label="客戶電話"
+                variant="standard"
+                // error={Boolean(errors.member)}
+                // helperText={errors.member}
+                {...params} />
+            )}
+            renderOption={(props, option) => (
+              <div {...props} >
+                <div className="option-wrapper">
+                  <span>{option.mobile}</span>
+                  <span className="minor">{option.name}</span>
+                </div>
+              </div>
+            )}
+          />
+
+          <Autocomplete
+            freeSolo
+            disablePortal
+            sx={{ width: '100%' }}
+            options={(currentMember && currentMember.pets) || []}
+            value={currentPet}
+            onChange={onPetChange}
+            getOptionLabel={option => option.name}
+            renderInput={(params) => <TextField
+              label="寵物名稱"
+              variant="standard"
+              {...params}
+            />}
+            renderOption={(props, option) => (
+              <div {...props} >
+                <div className="option-wrapper">
+                  <span>{option.name}</span>
+                  <span className="minor">{option.breed}</span>
+                </div>
+              </div>
+            )}
+          />
 
           <TextField
-            id="outlined-select-currency"
+            label="負責人"
+            required
             select
             variant="standard"
-            label="提醒類別"
-            value={reminderType}
-            onChange={handleChange}
-          // sx={{ mt: 2 }}
-          // helperText="Please select your currency"
+            error={Boolean(errors.principal)}
+            helperText={errors.principal}
+            onChange={onPrincipalChange}
+            value={(creatingConsultation.principal && creatingConsultation.principal.id) || ''}
           >
-            <MenuItem value="normal">一般</MenuItem>
-            <MenuItem value="shopping">購物</MenuItem>
-            <MenuItem value="complaint">客訴</MenuItem>
+            <MenuItem value="" disabled>負責人</MenuItem>
+            {renderPrincipalOptions(principals)}
+          </TextField>
+
+          <TextField
+            label="類別"
+            required
+            select
+            variant="standard"
+            error={Boolean(errors.category)}
+            helperText={errors.category}
+            onChange={onCategoryChange}
+            value={(creatingConsultation.category && creatingConsultation.category.id) || ''}
+          >
+            <MenuItem value="" disabled>選擇類別</MenuItem>
+            {renderCategoryOptions(consultationCategories)}
           </TextField>
 
           <DateTimePicker
-            renderInput={(props) => <TextField variant="standard" {...props} sx={{
-              mt: 1,
-              '& input': { color: 'rgba(0, 0, 0, 0.42)' },
-            }} />}
-            label="提醒時間"
-            value={value}
+            renderInput={(props) => <TextField
+              required
+              className="for-date"
+              {...props}
+              error={Boolean(errors.remindStart || props.error)} helperText={errors.remindStart}
+              variant="standard"
+            />}
+            minutesStep={5}
+            label="提醒開始時間"
+            value={creatingConsultation.remindStart}
             inputFormat="yyyy/MM/dd hh:mm a"
             mask="___/__/__ __:__ _M"
-            onChange={(newValue) => {
-              setValue(newValue);
-            }}
+            onChange={onRemindChange('remindStart')}
+            maxDateTime={creatingConsultation.remindEnd && new Date(creatingConsultation.remindEnd)}
           />
 
-          {/* <input className="date-input" type="datetime-local" /> */}
+          <DateTimePicker
+            renderInput={(props) => <TextField
+              className="last-one for-date"
+              {...props}
+              error={Boolean(errors.remindEnd || props.error)} helperText={errors.remindEnd}
+              variant="standard"
+            />}
+            minutesStep={5}
+            label="提醒結束時間"
+            value={creatingConsultation.remindEnd}
+            inputFormat="yyyy/MM/dd hh:mm a"
+            mask="___/__/__ __:__ _M"
+            onChange={onRemindChange('remindEnd')}
+            minDateTime={creatingConsultation.remindStart && new Date(creatingConsultation.remindStart)}
+          />
 
-          <Typography variant="subtitle1" sx={{
+          {/* <Typography variant="subtitle1" sx={{
             mt: 2,
             fontSize: '0.75rem',
             lineHeight: '1.4375em',
@@ -112,22 +313,88 @@ export default function ItineraryCreatePopover(props) {
             color: 'rgba(0, 0, 0, 0.42)',
           }}>
             提醒內容
-          </Typography>
+          </Typography> */}
 
           <TextareaAutosize
-            minRows={12}
-            maxRows={12}
+            value={creatingConsultation.text || ''}
+            placeholder="請輸入文字內容 *"
+            onChange={onTextChange}
+            maxRows={10}
+            minRows={7}
             style={{
+              display: 'block',
               width: '100%',
               minWidth: '100%',
               maxWidth: '100%',
-              maxHeight: 200,
               fontSize: '1rem',
-              // marginBottom: theme.spacing(4),
-              borderColor: 'rgba(0, 0, 0, 0.42)',
-              outlineColor: theme.palette.primary.main
+              lineHeight: 1.5,
+              letterSpacing: '0.00938em',
+              padding: '0.375rem 0.75rem',
+              borderColor: errors.text ? theme.palette.error.main : 'rgba(0, 0, 0, 0.23)',
+              borderRadius: theme.shape.borderRadius,
+              outlineColor: theme.palette.primary.main,
             }}
           />
+          {errors.text && (<FormHelperText error>{errors.text}</FormHelperText>)}
+
+          <Stack className="chip-wrapper" direction="row" sx={{
+            mt: 4,
+            mb: 2.5,
+            mx: -0.5,
+            flexWrap: 'wrap',
+            '& .toggle-wrapper': {
+              px: 0.5,
+              mx: 0.5,
+              borderRadius: '1rem',
+              border: `1px dashed ${theme.palette.text.fade}`,
+              // '& .MuiChip-root:last-of-type': {
+              //   mr: 0
+              // },
+            },
+            '& .MuiChip-root': {
+              px: 1,
+              my: 0.75,
+              mx: 0.5,
+              bgcolor: 'text.lighter',
+            },
+            '& .MuiChip-root.active': {
+              color: 'text.light',
+              bgcolor: 'text.mid',
+              '&.red-chip': {
+                bgcolor: 'jewelry.red',
+              },
+              '&.dark-blue-chip': {
+                bgcolor: 'jewelry.darkBlue',
+              },
+              '&.blue-chip': {
+                bgcolor: 'jewelry.blue',
+              },
+              '&.light-blue-chip': {
+                bgcolor: 'jewelry.lightBlue',
+              },
+            },
+
+          }}>
+            <Chip label="急" size="small"
+              onClick={onTagToggle({ id: 'pt1', name: '急' })}
+              className={`red-chip ${judgeActive({ id: 'pt1', name: '急' })}`}
+            />
+            <Box className="toggle-wrapper">
+              <Chip label="重要" size="small"
+                onClick={onImportantLevelRadio(IMPORTANT_LEVELS[0])}
+                className={`dark-blue-chip ${judgeActive(IMPORTANT_LEVELS[0])}`}
+              />
+              <Chip label="一般" size="small"
+                onClick={onImportantLevelRadio(IMPORTANT_LEVELS[1])}
+                className={`blue-chip ${judgeActive(IMPORTANT_LEVELS[1])}`}
+              />
+              <Chip label="次要" size="small"
+                onClick={onImportantLevelRadio(IMPORTANT_LEVELS[2])}
+                className={`light-blue-chip ${judgeActive(IMPORTANT_LEVELS[2])}`}
+              />
+            </Box>
+            {renderMinorTagBtn(minorPropertyTags)}
+          </Stack>
         </Box>
 
       </Paper>
@@ -146,7 +413,7 @@ export default function ItineraryCreatePopover(props) {
             },
           }}
         >
-          新增提醒
+          確認
         </Button>
       </Box>
 

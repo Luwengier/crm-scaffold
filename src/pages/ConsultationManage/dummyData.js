@@ -8,7 +8,7 @@ const getSerialText = numb => {
 export const dummyMember = {
   id: 'mb5787584',
   name: '游妮妮',
-  mobile: '0933445566',
+  mobile: '0933445511',
   address: '台北市士林區中山北路七段16巷28號',
 }
 
@@ -88,7 +88,7 @@ export const dummyMembers = [
   {
     id: 'mb5787584',
     name: '游妮妮',
-    mobile: '0933445566',
+    mobile: '0933445511',
     address: '台北市士林區中山北路七段16巷28號',
   },
   {
