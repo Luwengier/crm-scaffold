@@ -1,6 +1,8 @@
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useTheme } from '@mui/material/styles'
+import { useDispatch, useSelector } from 'react-redux'
+import { replaceConsultations, selectConsultations } from '../../slices/consultationsSlice'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
@@ -23,8 +25,11 @@ const INITIAL_STATE = {
   propertyTags: [{ id: 'pt3', name: '一般' }],
 }
 
-function CreatePopover({ setConsultations, consultations, member, onClose, ...restProps }) {
+function CreatePopover({ member, onClose, ...restProps }) {
+  const dispatch = useDispatch()
   const theme = useTheme()
+  const consultations = useSelector(selectConsultations)
+
   const {
     errors,
     setErrors,
@@ -77,7 +82,7 @@ function CreatePopover({ setConsultations, consultations, member, onClose, ...re
       },
       ...consultations,
     ]
-    setConsultations(newConsultations)
+    dispatch(replaceConsultations(newConsultations))
     setCreatingConsultation(INITIAL_STATE)
     onClose()
   }

@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { TransitionGroup } from 'react-transition-group'
 import { useTheme, alpha } from '@mui/material/styles'
 import { useSearchParams } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { replaceConsultations, selectConsultations } from '../../slices/consultationsSlice'
 // import { format } from 'date-fns'
 import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
@@ -34,12 +36,7 @@ import DisplayToggleButton from './DisplayToggleButton'
 import CategoryToggleButton from './CategoryToggleButton'
 import CreatePopover from './CreatePopover'
 import DeletePopover from './DeletePopover'
-import { dummyMember, dummyData, principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_CLASS_MAPPING, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
-
-// 在諮詢資料加入是否展開的資料
-const insertIsExpanded = consultations => {
-  return consultations.map(consultation => ({ ...consultation, isExpanded: consultation.isCompleted ? false : true }))
-}
+import { dummyMember, principals, principalMapping, consultationCategories, consultationMapping, minorPropertyTags, IMPORTANT_CLASS_MAPPING, IMPORTANT_LEVELS, IMPORTANT_LEVEL_IDS } from './dummyData'
 
 // 客製時間格式
 const getLocaleDateString = timestamp => {
@@ -72,13 +69,15 @@ const filterCategory = (data, selected) => {
 function ConsultationMange() {
   const theme = useTheme()
   const [member, setMember] = useState(null)
-  const [consultations, setConsultations] = useState(null)
   const [errors, setErrors] = useState({})
   const [editingItem, setEditingItem] = useState({})
   const [anchorEl, setAnchorEl] = useState(null)
   const [deleteEl, setDeleteEl] = useState(null)
   const [selectedDisplay, setSelectedDisplay] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
+
+  const dispatch = useDispatch()
+  const consultations = useSelector(selectConsultations)
 
   const [searchParams] = useSearchParams()
   const memberId = searchParams.get('memberId')
@@ -87,7 +86,7 @@ function ConsultationMange() {
     if (memberId) {
       setMember(dummyMember)
     }
-    setConsultations(insertIsExpanded(dummyData))
+    // dispatch(replaceConsultations(insertIsExpanded(dummyData)))
   }, [memberId])
 
   const filteredData = useMemo(() => {
@@ -101,7 +100,7 @@ function ConsultationMange() {
     const newConsultations = consultations.map(consultation => {
       return consultation.id === id ? { ...consultation, isExpanded: isEditing ? true : !consultation.isExpanded } : consultation
     })
-    setConsultations(newConsultations)
+    dispatch(replaceConsultations(newConsultations))
   }
 
   // 切換篩選條件
@@ -118,20 +117,19 @@ function ConsultationMange() {
   // 切換是否已完成
   const onCompletedToggle = item => e => {
     e.stopPropagation()
-    setConsultations((prev) => (
-      prev.map(consultation => {
-        return consultation.id === item.id
-          ? {
-            ...consultation,
-            ...((!consultation.isCompleted && !consultation.transferredAt) && { completedAt: new Date().getTime() }),
-            ...(consultation.isCompleted && { isExpanded: true }),
-            isCompleted: !consultation.isCompleted,
-            // 下行可以在完成時順便縮合
-            // isExpanded: consultation.isCompleted,
-          }
-          : consultation
-      })
-    ))
+    const newConsultations = consultations.map(consultation => {
+      return consultation.id === item.id
+        ? {
+          ...consultation,
+          ...((!consultation.isCompleted && !consultation.transferredAt) && { completedAt: new Date().getTime() }),
+          ...(consultation.isCompleted && { isExpanded: true }),
+          isCompleted: !consultation.isCompleted,
+          // 下行可以在完成時順便縮合
+          // isExpanded: consultation.isCompleted,
+        }
+        : consultation
+    })
+    dispatch(replaceConsultations(newConsultations))
     if (item.id === editingItem.id) setEditingItem({})
   }
 
@@ -155,7 +153,7 @@ function ConsultationMange() {
 
   const onDeleteConfirm = id => {
     const newConsultations = consultations.filter(consultation => consultation.id !== id)
-    setConsultations(newConsultations)
+    dispatch(replaceConsultations(newConsultations))
   }
 
   const createOpen = Boolean(anchorEl)
@@ -206,13 +204,18 @@ function ConsultationMange() {
   const onEditConfirm = e => {
     e.stopPropagation()
     if (validateConsultation()) return
-    // 需要 stopPropagation 否則 setConsultations 會被 onExpandedChange 裡的覆蓋
+    // 需要 stopPropagation 否則 replaceConsultations 會被 onExpandedChange 裡的覆蓋
     const newConsultations = consultations.map(consultation => {
       return consultation.id === editingItem.id
-        ? { ...consultation, ...editingItem }
+        ? {
+          ...consultation,
+          ...editingItem,
+          ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
+          remindStart: new Date(editingItem.remindStart).getTime(),
+        }
         : consultation
     })
-    setConsultations(newConsultations)
+    dispatch(replaceConsultations(newConsultations))
     setEditingItem({})
   }
 
@@ -228,7 +231,9 @@ function ConsultationMange() {
         ...editingItem.principal,
         id: e.target.value,
         name: principalMapping[e.target.value]
-      }
+      },
+      ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
+      remindStart: new Date(editingItem.remindStart).getTime(),
     }
     const modifiedConsultations = consultations.map(consultation => {
       return consultation.id === editingItem.id
@@ -240,7 +245,7 @@ function ConsultationMange() {
         }
         : consultation
     })
-    setConsultations([newEditingItem, ...modifiedConsultations])
+    dispatch(replaceConsultations([newEditingItem, ...modifiedConsultations]))
     setEditingItem({})
   }
 
@@ -1062,9 +1067,7 @@ function ConsultationMange() {
         open={createOpen}
         anchorEl={anchorEl}
         member={member}
-        consultations={consultations}
         onClose={handleCreateClose}
-        setConsultations={setConsultations}
       />
 
       <DeletePopover
