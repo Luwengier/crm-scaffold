@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { omit } from 'lodash-es'
-import { v4 as uuidv4 } from 'uuid'
 import { TransitionGroup } from 'react-transition-group'
 import { useTheme, alpha } from '@mui/material/styles'
 import { useSearchParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { replaceConsultations, selectConsultations } from '../../slices/consultationsSlice'
+import { selectConsultations, updateConsultation, deleteConsultation, toggleConsultationExpanded, toggleConsultationCompleted, transferConsultationPrincipal } from '../../slices/consultationsSlice'
 // import { format } from 'date-fns'
 import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
@@ -86,7 +85,6 @@ function ConsultationMange() {
     if (memberId) {
       setMember(dummyMember)
     }
-    // dispatch(replaceConsultations(insertIsExpanded(dummyData)))
   }, [memberId])
 
   const filteredData = useMemo(() => {
@@ -97,10 +95,7 @@ function ConsultationMange() {
 
   // 切換展開
   const onExpandedChange = (id, isEditing) => (event, isExpanded) => {
-    const newConsultations = consultations.map(consultation => {
-      return consultation.id === id ? { ...consultation, isExpanded: isEditing ? true : !consultation.isExpanded } : consultation
-    })
-    dispatch(replaceConsultations(newConsultations))
+    dispatch(toggleConsultationExpanded({ id, isEditing }))
   }
 
   // 切換篩選條件
@@ -117,19 +112,7 @@ function ConsultationMange() {
   // 切換是否已完成
   const onCompletedToggle = item => e => {
     e.stopPropagation()
-    const newConsultations = consultations.map(consultation => {
-      return consultation.id === item.id
-        ? {
-          ...consultation,
-          ...((!consultation.isCompleted && !consultation.transferredAt) && { completedAt: new Date().getTime() }),
-          ...(consultation.isCompleted && { isExpanded: true }),
-          isCompleted: !consultation.isCompleted,
-          // 下行可以在完成時順便縮合
-          // isExpanded: consultation.isCompleted,
-        }
-        : consultation
-    })
-    dispatch(replaceConsultations(newConsultations))
+    dispatch(toggleConsultationCompleted(item.id))
     if (item.id === editingItem.id) setEditingItem({})
   }
 
@@ -152,8 +135,7 @@ function ConsultationMange() {
   }
 
   const onDeleteConfirm = id => {
-    const newConsultations = consultations.filter(consultation => consultation.id !== id)
-    dispatch(replaceConsultations(newConsultations))
+    dispatch(deleteConsultation(id))
   }
 
   const createOpen = Boolean(anchorEl)
@@ -204,18 +186,7 @@ function ConsultationMange() {
   const onEditConfirm = e => {
     e.stopPropagation()
     if (validateConsultation()) return
-    // 需要 stopPropagation 否則 replaceConsultations 會被 onExpandedChange 裡的覆蓋
-    const newConsultations = consultations.map(consultation => {
-      return consultation.id === editingItem.id
-        ? {
-          ...consultation,
-          ...editingItem,
-          ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
-          remindStart: new Date(editingItem.remindStart).getTime(),
-        }
-        : consultation
-    })
-    dispatch(replaceConsultations(newConsultations))
+    dispatch(updateConsultation(editingItem))
     setEditingItem({})
   }
 
@@ -224,28 +195,7 @@ function ConsultationMange() {
   const transferPrincipal = e => {
     e.stopPropagation()
     if (validateConsultation()) return
-    const newEditingItem = {
-      ...editingItem,
-      id: uuidv4(),
-      principal: {
-        ...editingItem.principal,
-        id: e.target.value,
-        name: principalMapping[e.target.value]
-      },
-      ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
-      remindStart: new Date(editingItem.remindStart).getTime(),
-    }
-    const modifiedConsultations = consultations.map(consultation => {
-      return consultation.id === editingItem.id
-        ? {
-          ...consultation,
-          isCompleted: true,
-          completedAt: new Date().getTime(),
-          transferredAt: new Date().getTime(),
-        }
-        : consultation
-    })
-    dispatch(replaceConsultations([newEditingItem, ...modifiedConsultations]))
+    dispatch(transferConsultationPrincipal({ e, editingItem, principalMapping }))
     setEditingItem({})
   }
 

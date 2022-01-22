@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { v4 as uuidv4 } from 'uuid'
 
 // 在諮詢資料加入是否展開的資料
 const insertIsExpanded = consultations => {
@@ -346,16 +347,80 @@ const consultationsSlice = createSlice({
   name: 'consultations',
   initialState: insertIsExpanded(dummyData),
   reducers: {
-    'addConsultation': (state, action) => {
-      return [action.payload, ...state]
+    'deleteConsultation': (state, action) => {
+      return state.filter(consultation => consultation.id !== action.payload)
+    },
+    'updateConsultation': (state, action) => {
+      const editingItem = action.payload
+      return state.map(consultation => {
+        return consultation.id === editingItem.id
+          ? {
+            ...consultation,
+            ...editingItem,
+            ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
+            remindStart: new Date(editingItem.remindStart).getTime(),
+          }
+          : consultation
+      })
     },
     'replaceConsultations': (state, action) => {
       return action.payload
     },
+    'toggleConsultationExpanded': (state, action) => {
+      return state.map(consultation => {
+        return consultation.id === action.payload.id ? { ...consultation, isExpanded: action.payload.isEditing ? true : !consultation.isExpanded } : consultation
+      })
+    },
+    'toggleConsultationCompleted': (state, action) => {
+      return state.map(consultation => {
+        return consultation.id === action.payload
+          ? {
+            ...consultation,
+            ...((!consultation.isCompleted && !consultation.transferredAt) && { completedAt: new Date().getTime() }),
+            ...(consultation.isCompleted && { isExpanded: true }),
+            isCompleted: !consultation.isCompleted,
+            // 下行可以在完成時順便縮合
+            // isExpanded: consultation.isCompleted,
+          }
+          : consultation
+      })
+    },
+    'transferConsultationPrincipal': (state, action) => {
+      const { e, editingItem, principalMapping } = action.payload
+      const newEditingItem = {
+        ...editingItem,
+        id: uuidv4(),
+        principal: {
+          ...editingItem.principal,
+          id: e.target.value,
+          name: principalMapping[e.target.value]
+        },
+        ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
+        remindStart: new Date(editingItem.remindStart).getTime(),
+      }
+      const modifiedConsultations = state.map(consultation => {
+        return consultation.id === editingItem.id
+          ? {
+            ...consultation,
+            isCompleted: true,
+            completedAt: new Date().getTime(),
+            transferredAt: new Date().getTime(),
+          }
+          : consultation
+      })
+      return [newEditingItem, ...modifiedConsultations]
+    }
   },
 });
 
-export const { addConsultation, replaceConsultations } = consultationsSlice.actions
+export const {
+  updateConsultation,
+  deleteConsultation,
+  replaceConsultations,
+  toggleConsultationExpanded,
+  toggleConsultationCompleted,
+  transferConsultationPrincipal,
+} = consultationsSlice.actions
 
 export const selectConsultations = state => state.consultations
 
