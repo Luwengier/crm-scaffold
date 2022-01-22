@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { v4 as uuidv4 } from 'uuid'
 
 // 在諮詢資料加入是否展開的資料
 const insertIsExpanded = consultations => {
@@ -18,6 +17,7 @@ const dummyData = [
     id: 't1',
     isCompleted: false,
     text: getSerialText(1),
+    recordedAt: 1628553600000,
     remindStart: 1641465360000,
     remindEnd: 1643103000000,
     member: {
@@ -57,6 +57,7 @@ const dummyData = [
     id: 't2',
     isCompleted: false,
     text: getSerialText(2),
+    recordedAt: 1628553600000,
     remindStart: 1641465360000,
     member: {
       id: 'mb5787584',
@@ -92,6 +93,7 @@ const dummyData = [
     isCompleted: true,
     completedAt: 1641196284569,
     text: getSerialText(3),
+    recordedAt: 1628553600000,
     remindStart: 1641465360000,
     remindEnd: 1643103000000,
     member: {
@@ -139,6 +141,7 @@ const dummyData = [
     id: 'c4',
     isCompleted: false,
     text: getSerialText(4),
+    recordedAt: 1628553600000,
     remindStart: 1641465360000,
     member: {
       name: '何麗恩',
@@ -179,6 +182,7 @@ const dummyData = [
     id: 'a678d019-c287-4c32-83d1-aee804362222',
     text: 'It is an Expired Consultation.\n\n它是個超時提醒。\n\n',
     isExpanded: true,
+    recordedAt: 1628553600000,
     remindStart: 1641276613000,
     remindEnd: 1641363019000,
     member: {
@@ -213,6 +217,7 @@ const dummyData = [
     isCompleted: true,
     completedAt: 1641196284569,
     text: getSerialText(5),
+    recordedAt: 1628553600000,
     remindStart: 1641465360000,
     member: {
       id: 'mb57875847222',
@@ -248,6 +253,7 @@ const dummyData = [
     isCompleted: true,
     completedAt: 1641196284569,
     text: getSerialText(6),
+    recordedAt: 1628553600000,
     remindStart: 1641465360000,
     member: {
       id: 'mb57875847222',
@@ -284,6 +290,7 @@ const dummyData = [
     completedAt: 1641094284569,
     transferredAt: 1641094284569,
     text: getSerialText(7),
+    recordedAt: 1628553600000,
     remindStart: 1641465360000,
     member: {
       id: 'mb57875847222',
@@ -315,6 +322,7 @@ const dummyData = [
     isCompleted: true,
     completedAt: 1640996284569,
     text: getSerialText(8),
+    recordedAt: 1628553600000,
     remindStart: 1640865360000,
     member: {
       id: 'mb57875847222',
@@ -347,24 +355,21 @@ const consultationsSlice = createSlice({
   name: 'consultations',
   initialState: insertIsExpanded(dummyData),
   reducers: {
+    'createConsultation': (state, action) => {
+      return [action.payload, ...state]
+    },
     'deleteConsultation': (state, action) => {
       return state.filter(consultation => consultation.id !== action.payload)
     },
     'updateConsultation': (state, action) => {
-      const editingItem = action.payload
       return state.map(consultation => {
-        return consultation.id === editingItem.id
+        return consultation.id === action.payload.id
           ? {
             ...consultation,
-            ...editingItem,
-            ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
-            remindStart: new Date(editingItem.remindStart).getTime(),
+            ...action.payload,
           }
           : consultation
       })
-    },
-    'replaceConsultations': (state, action) => {
-      return action.payload
     },
     'toggleConsultationExpanded': (state, action) => {
       return state.map(consultation => {
@@ -386,20 +391,21 @@ const consultationsSlice = createSlice({
       })
     },
     'transferConsultationPrincipal': (state, action) => {
-      const { e, editingItem, principalMapping } = action.payload
-      const newEditingItem = {
-        ...editingItem,
-        id: uuidv4(),
-        principal: {
-          ...editingItem.principal,
-          id: e.target.value,
-          name: principalMapping[e.target.value]
-        },
-        ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
-        remindStart: new Date(editingItem.remindStart).getTime(),
-      }
+      // const { e, editingItem, principalMapping } = action.payload
+      // const newEditingItem = {
+      //   ...editingItem,
+      //   id: uuidv4(),
+      //   principal: {
+      //     ...editingItem.principal,
+      //     id: e.target.value,
+      //     name: principalMapping[e.target.value]
+      //   },
+      //   ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
+      //   remindStart: new Date(editingItem.remindStart).getTime(),
+      // }
+      const { newConsultation, id } = action.payload
       const modifiedConsultations = state.map(consultation => {
-        return consultation.id === editingItem.id
+        return consultation.id === id
           ? {
             ...consultation,
             isCompleted: true,
@@ -408,15 +414,15 @@ const consultationsSlice = createSlice({
           }
           : consultation
       })
-      return [newEditingItem, ...modifiedConsultations]
+      return [newConsultation, ...modifiedConsultations]
     }
   },
 });
 
 export const {
+  createConsultation,
   updateConsultation,
   deleteConsultation,
-  replaceConsultations,
   toggleConsultationExpanded,
   toggleConsultationCompleted,
   transferConsultationPrincipal,

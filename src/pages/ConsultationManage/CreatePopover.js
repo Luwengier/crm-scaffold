@@ -1,14 +1,14 @@
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useTheme } from '@mui/material/styles'
-import { useDispatch, useSelector } from 'react-redux'
-import { replaceConsultations, selectConsultations } from '../../slices/consultationsSlice'
+import { useDispatch } from 'react-redux'
+import { createConsultation } from '../../slices/consultationsSlice'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Stack from '@mui/material/Stack'
-import Divider from '@mui/material/Divider'
 import Popover from '@mui/material/Popover'
+import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
@@ -28,15 +28,13 @@ const INITIAL_STATE = {
 function CreatePopover({ member, onClose, ...restProps }) {
   const dispatch = useDispatch()
   const theme = useTheme()
-  const consultations = useSelector(selectConsultations)
 
   const {
     errors,
-    setErrors,
     currentMember,
     currentPet,
     creatingConsultation,
-    setCreatingConsultation,
+    setErrors,
     onImportantLevelRadio,
     onTagToggle,
     onMemberChange,
@@ -45,6 +43,7 @@ function CreatePopover({ member, onClose, ...restProps }) {
     onCategoryChange,
     onRemindChange,
     onTextChange,
+    resetForm,
   } = useConsultationForm(INITIAL_STATE)
 
   const validateConsultation = () => {
@@ -70,20 +69,19 @@ function CreatePopover({ member, onClose, ...restProps }) {
 
   const onConfirmClick = () => {
     if (validateConsultation()) return
-    const newConsultations = [
-      {
-        ...creatingConsultation,
-        id: uuidv4(),
-        isExpanded: true,
-        member: currentMember || member,
-        remindStart: new Date(creatingConsultation.remindStart).getTime(),
-        remindEnd: creatingConsultation.remindEnd ? new Date(creatingConsultation.remindEnd).getTime() : null,
-        ...(currentPet && { pet: currentPet }),
-      },
-      ...consultations,
-    ]
-    dispatch(replaceConsultations(newConsultations))
-    setCreatingConsultation(INITIAL_STATE)
+    const newConsultation = {
+      ...creatingConsultation,
+      id: uuidv4(),
+      isExpanded: true,
+      recordedAt: Date.now(),
+      member: currentMember || member,
+      remindStart: new Date(creatingConsultation.remindStart).getTime(),
+      ...(creatingConsultation.remindEnd && { remindEnd: new Date(creatingConsultation.remindEnd).getTime() }),
+      ...(currentPet && { pet: currentPet }),
+    }
+
+    dispatch(createConsultation(newConsultation))
+    resetForm()
     onClose()
   }
 

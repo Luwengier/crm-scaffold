@@ -10,7 +10,7 @@ const getDesignTokens = (mode) => ({
   palette: {
     mode,
     primary: {
-      bg: '#f8f9a4',
+      editingBg: '#f8f9a4',
       main: teal[300],
       text: '#5590ac',
       ...(mode === 'dark' && {
@@ -18,7 +18,7 @@ const getDesignTokens = (mode) => ({
       }),
     },
     secondary: {
-      bg: '#fdffcf',
+      bg: '#feffe9',
       main: amber['A200'],
       text: '#ffdc6b',
       darkText: amber[500],

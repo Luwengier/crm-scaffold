@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import { omit } from 'lodash-es'
 import { TransitionGroup } from 'react-transition-group'
 import { useTheme, alpha } from '@mui/material/styles'
@@ -186,7 +187,12 @@ function ConsultationMange() {
   const onEditConfirm = e => {
     e.stopPropagation()
     if (validateConsultation()) return
-    dispatch(updateConsultation(editingItem))
+    const newConsultation = {
+      ...editingItem,
+      ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
+      remindStart: new Date(editingItem.remindStart).getTime(),
+    }
+    dispatch(updateConsultation(newConsultation))
     setEditingItem({})
   }
 
@@ -195,7 +201,18 @@ function ConsultationMange() {
   const transferPrincipal = e => {
     e.stopPropagation()
     if (validateConsultation()) return
-    dispatch(transferConsultationPrincipal({ e, editingItem, principalMapping }))
+    const newConsultation = {
+      ...editingItem,
+      id: uuidv4(),
+      principal: {
+        ...editingItem.principal,
+        id: e.target.value,
+        name: principalMapping[e.target.value]
+      },
+      ...(editingItem.remindEnd && { remindEnd: new Date(editingItem.remindEnd).getTime() }),
+      remindStart: new Date(editingItem.remindStart).getTime(),
+    }
+    dispatch(transferConsultationPrincipal({ newConsultation, id: editingItem.id }))
     setEditingItem({})
   }
 
@@ -473,7 +490,7 @@ function ConsultationMange() {
           <div className="record-date">
             <RateReviewOutlinedIcon className="date-icon" fontSize="small" />
             <span>紀錄時間 :&nbsp;</span>
-            <span>2021/08/10</span>
+            <span>{getLocaleDateString(item.recordedAt)}</span>
           </div>
           <span>|</span>
           <div className="remind-date">
@@ -768,7 +785,7 @@ function ConsultationMange() {
             bgcolor: 'text.fade',
           },
           '&.editing': {
-            bgcolor: 'primary.bg',
+            bgcolor: 'primary.editingBg',
           },
           '&.editing .consultation-info': {
             color: 'text.secondary',

@@ -1,11 +1,15 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import { useTheme } from '@mui/material/styles'
+import { useDispatch } from 'react-redux'
+import { createConsultation } from '../slices/consultationsSlice'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Chip from '@mui/material/Chip'
 import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
 import Popover from '@mui/material/Popover'
+import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -23,65 +27,71 @@ const INITIAL_STATE = {
   propertyTags: [{ id: 'pt3', name: '一般' }],
 }
 
-export default function ItineraryCreatePopover(props) {
-  const { open, onClose } = props
+export default function ItineraryCreatePopover({ open, onClose }) {
+  const dispatch = useDispatch()
   const theme = useTheme()
   const {
     errors,
-    // setErrors,
     currentMember,
     currentPet,
+    memberInput,
+    memberPhoneInput,
+    petInput,
     creatingConsultation,
-    // setCreatingConsultation,
+    setErrors,
     onImportantLevelRadio,
     onTagToggle,
     onMemberChange,
+    onMemberInputChange,
+    onMemberPhoneInputChange,
     onPetChange,
+    onPetInputChange,
     onPrincipalChange,
     onCategoryChange,
     onRemindChange,
     onTextChange,
+    resetForm,
   } = useConsultationForm(INITIAL_STATE)
 
-  // const validateConsultation = () => {
-  //   const newErrors = {}
-  //   if (!member && !currentMember) newErrors.member = '會員為必填'
-  //   if (!creatingConsultation.principal) newErrors.principal = '負責人為必填'
-  //   if (!creatingConsultation.category) newErrors.category = '類別為必填'
-  //   if (!creatingConsultation.text) newErrors.text = '文字內容為必填'
+  const validateConsultation = () => {
+    const newErrors = {}
+    if (!currentMember && !memberInput) newErrors.member = '客戶名稱為必填'
+    if (!currentMember && !memberPhoneInput) newErrors.phone = '客戶電話為必填'
+    if (!creatingConsultation.principal) newErrors.principal = '負責人為必填'
+    if (!creatingConsultation.category) newErrors.category = '類別為必填'
+    if (!creatingConsultation.text) newErrors.text = '文字內容為必填'
 
-  //   if (!creatingConsultation.remindStart) {
-  //     newErrors.remindStart = '提醒開始時間為必填'
-  //   } else if (!(creatingConsultation.remindStart instanceof Date) || isNaN(creatingConsultation.remindStart)) {
-  //     newErrors.remindStart = '時間格式錯誤'
-  //   }
-  //   if (creatingConsultation.remindEnd && (
-  //     !(creatingConsultation.remindEnd instanceof Date) || isNaN(creatingConsultation.remindEnd)
-  //   )) {
-  //     newErrors.remindEnd = '時間格式錯誤，若無需要請清空'
-  //   }
-  //   setErrors(newErrors)
-  //   return Object.keys(newErrors).length > 0
-  // }
+    if (!creatingConsultation.remindStart) {
+      newErrors.remindStart = '提醒開始時間為必填'
+    } else if (!(creatingConsultation.remindStart instanceof Date) || isNaN(creatingConsultation.remindStart)) {
+      newErrors.remindStart = '時間格式錯誤'
+    }
+    if (creatingConsultation.remindEnd && (
+      !(creatingConsultation.remindEnd instanceof Date) || isNaN(creatingConsultation.remindEnd)
+    )) {
+      newErrors.remindEnd = '時間格式錯誤，若無需要請清空'
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length > 0
+  }
 
-  // const onConfirmClick = () => {
-  //   if (validateConsultation()) return
-  //   const newConsultations = [
-  //     {
-  //       ...creatingConsultation,
-  //       id: uuidv4(),
-  //       isExpanded: true,
-  //       member: currentMember || member,
-  //       remindStart: new Date(creatingConsultation.remindStart).getTime(),
-  //       remindEnd: creatingConsultation.remindEnd ? new Date(creatingConsultation.remindEnd).getTime() : null,
-  //       ...(currentPet && { pet: currentPet }),
-  //     },
-  //     ...consultations,
-  //   ]
-  //   setConsultations(newConsultations)
-  //   setCreatingConsultation(INITIAL_STATE)
-  //   onClose()
-  // }
+  const onConfirmClick = () => {
+    if (validateConsultation()) return
+    const newConsultation = {
+      ...creatingConsultation,
+      id: uuidv4(),
+      isExpanded: true,
+      recordedAt: Date.now(),
+      member: currentMember,
+      remindStart: new Date(creatingConsultation.remindStart).getTime(),
+      remindEnd: creatingConsultation.remindEnd ? new Date(creatingConsultation.remindEnd).getTime() : null,
+      ...(currentPet && { pet: currentPet }),
+    }
+
+    dispatch(createConsultation(newConsultation))
+    resetForm()
+    onClose()
+  }
 
   const renderCategoryOptions = categories => {
     return categories.map(category => (
@@ -114,6 +124,14 @@ export default function ItineraryCreatePopover(props) {
     })
   }
 
+  const memberActive = useMemo(() => {
+    return currentMember ? 'active' : ''
+  }, [currentMember])
+
+  const petActive = useMemo(() => {
+    return currentPet ? 'active' : ''
+  }, [currentPet])
+
   return (
     <Popover
       open={open}
@@ -141,28 +159,35 @@ export default function ItineraryCreatePopover(props) {
               mb: 6,
             },
           },
+          '& .MuiTextField-root.active': {
+            '& .MuiInput-root': {
+              bgcolor: theme.palette.secondary.bg,
+            },
+          },
         },
       }}
     >
 
-      <Paper sx={{
-        p: 2,
-        flexGrow: 1,
-        boxShadow: 2,
-        display: 'flex',
-        flexDirection: 'column',
-        bgcolor: 'background.light',
-        '& .option-wrapper': {
+      <Paper
+        sx={{
+          p: 2,
           flexGrow: 1,
+          boxShadow: 2,
           display: 'flex',
-          justifyContent: 'space-between',
-          '& .minor': {
-            fontSize: '0.875em',
-            letterSpacing: '0.04em',
-            color: 'text.secondary',
+          flexDirection: 'column',
+          bgcolor: 'background.light',
+          '& .option-wrapper': {
+            flexGrow: 1,
+            display: 'flex',
+            justifyContent: 'space-between',
+            '& .minor': {
+              fontSize: '0.875em',
+              letterSpacing: '0.04em',
+              color: 'text.secondary',
+            },
           },
-        },
-      }}>
+        }}
+      >
         <Box sx={{ flexGrow: 1 }}>
           <Typography
             variant="h6"
@@ -172,18 +197,23 @@ export default function ItineraryCreatePopover(props) {
           </Typography>
 
           <Autocomplete
+            freeSolo
             disablePortal
             sx={{ width: '100%' }}
             options={dummyMembers}
+            inputValue={memberInput}
+            onInputChange={onMemberInputChange}
             value={currentMember}
             onChange={onMemberChange}
             getOptionLabel={option => option.name}
             renderInput={params => (
               <TextField
+                required
+                className={memberActive}
                 label="客戶名稱"
                 variant="standard"
-                // error={Boolean(errors.member)}
-                // helperText={errors.member}
+                error={Boolean(errors.member)}
+                helperText={errors.member}
                 {...params} />
             )}
             renderOption={(props, option) => (
@@ -197,18 +227,23 @@ export default function ItineraryCreatePopover(props) {
           />
 
           <Autocomplete
+            freeSolo
             disablePortal
             sx={{ width: '100%' }}
             options={dummyMembers}
+            inputValue={memberPhoneInput}
+            onInputChange={onMemberPhoneInputChange}
             value={currentMember}
             onChange={onMemberChange}
             getOptionLabel={option => option.mobile}
             renderInput={params => (
               <TextField
+                required
+                className={memberActive}
                 label="客戶電話"
                 variant="standard"
-                // error={Boolean(errors.member)}
-                // helperText={errors.member}
+                error={Boolean(errors.phone)}
+                helperText={errors.phone}
                 {...params} />
             )}
             renderOption={(props, option) => (
@@ -226,10 +261,13 @@ export default function ItineraryCreatePopover(props) {
             disablePortal
             sx={{ width: '100%' }}
             options={(currentMember && currentMember.pets) || []}
+            inputValue={petInput}
+            onInputChange={onPetInputChange}
             value={currentPet}
             onChange={onPetChange}
             getOptionLabel={option => option.name}
             renderInput={(params) => <TextField
+              className={petActive}
               label="寵物名稱"
               variant="standard"
               {...params}
@@ -243,6 +281,10 @@ export default function ItineraryCreatePopover(props) {
               </div>
             )}
           />
+
+          <Divider light sx={{ mt: 3 }}>
+            <Typography sx={{ color: 'text.disabled' }}>123</Typography>
+          </Divider>
 
           <TextField
             label="負責人"
@@ -403,7 +445,7 @@ export default function ItineraryCreatePopover(props) {
         <Button
           color="secondary"
           variant="contained"
-          onClick={onClose}
+          onClick={onConfirmClick}
           sx={{
             fontWeight: 'bold',
             color: 'grey.700',

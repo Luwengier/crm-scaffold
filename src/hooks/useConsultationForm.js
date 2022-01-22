@@ -6,7 +6,10 @@ import { principalMapping, consultationMapping, IMPORTANT_LEVEL_IDS } from '../p
 export function useConsultationForm(INITIAL_STATE) {
   const [errors, setErrors] = useState({})
   const [currentMember, setCurrentMember] = useState(null)
+  const [memberInput, setMemberInput] = useState('')
+  const [memberPhoneInput, setMemberPhoneInput] = useState('')
   const [currentPet, setCurrentPet] = useState(null)
+  const [petInput, setPetInput] = useState('')
   const [creatingConsultation, setCreatingConsultation] = useState(INITIAL_STATE)
 
   const onImportantLevelRadio = targetTag => () => {
@@ -29,15 +32,36 @@ export function useConsultationForm(INITIAL_STATE) {
   }
 
   const onMemberChange = (e, optionValue) => {
-    // if (optionValue.pets) { setCurrentPets(optionValue.pets) }
-
     setErrors(omit(errors, 'member'))
     setCurrentMember(optionValue)
     setCurrentPet(null)
+    setPetInput('')
+  }
+
+  const onMemberInputChange = (e, newInputValue) => {
+    setMemberInput(newInputValue)
+    if (currentMember && (currentMember.name !== newInputValue)) {
+      setCurrentMember(null)
+      setCurrentPet(null)
+      setPetInput('')
+    }
+  }
+
+  const onMemberPhoneInputChange = (e, newInputValue) => {
+    setMemberPhoneInput(newInputValue)
+    if (currentMember && (currentMember.mobile !== newInputValue)) {
+      setCurrentMember(null)
+      setCurrentPet(null)
+      setPetInput('')
+    }
   }
 
   const onPetChange = (e, optionValue) => {
     setCurrentPet(optionValue)
+  }
+
+  const onPetInputChange = (event, newInputValue) => {
+    setPetInput(newInputValue);
   }
 
   const onPrincipalChange = e => {
@@ -92,21 +116,37 @@ export function useConsultationForm(INITIAL_STATE) {
     }))
   }
 
+  const resetForm = () => {
+    setCurrentMember(null)
+    setMemberInput('')
+    setMemberPhoneInput('')
+    setCurrentPet(null)
+    setPetInput('')
+    setCreatingConsultation(INITIAL_STATE)
+  }
+
 
   return {
     errors,
-    setErrors,
     currentMember,
     currentPet,
+    memberInput,
+    memberPhoneInput,
+    petInput,
     creatingConsultation,
+    setErrors,
     setCreatingConsultation,
     onImportantLevelRadio,
     onTagToggle,
     onMemberChange,
+    onMemberInputChange,
+    onMemberPhoneInputChange,
     onPetChange,
+    onPetInputChange,
     onPrincipalChange,
     onCategoryChange,
     onRemindChange,
     onTextChange,
+    resetForm,
   }
 }
