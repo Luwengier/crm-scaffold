@@ -13,10 +13,13 @@ function EventList() {
       px: 2,
       pt: 2,
       pb: 4,
-      mx: 1,
       mb: 2,
       position: 'relative',
+      borderRadius: 1,
       bgcolor: alpha(theme.palette.primary.light, 0.1),
+      '& .MuiPaper-root:not(:last-of-type)': {
+        mb: 2,
+      },
       '& .MuiCardHeader-content': {
         minWidth: 0,
       },
@@ -26,6 +29,7 @@ function EventList() {
       },
       '& .card-content': {
         px: 2,
+        pb: 2,
       },
       // '& .delete-btn': {
       //   top: 0,
@@ -34,6 +38,8 @@ function EventList() {
       //   transform: 'translate(-25%, 0%)',
       // },
     }}>
+      <EventCard />
+      <EventCard />
       <EventCard />
     </Box>
   )

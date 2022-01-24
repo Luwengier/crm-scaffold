@@ -32,10 +32,10 @@ export function useConsultationForm(INITIAL_STATE) {
   }
 
   const onMemberChange = (e, optionValue) => {
-    setErrors(omit(errors, 'member'))
+    setErrors(omit(errors, ['member', 'phone']))
     setCurrentMember(optionValue)
     setCurrentPet(null)
-    setPetInput('')
+    // setPetInput('')
   }
 
   const onMemberInputChange = (e, newInputValue) => {

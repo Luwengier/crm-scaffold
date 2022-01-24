@@ -29,7 +29,7 @@ function EventPool(props) {
         <div
           className="fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event"
           style={{
-            borderRadius: '0.5rem',
+            borderRadius: theme.shape.borderRadius,
             color: theme.palette.text.light,
             borderColor: theme.palette.primary.main,
             backgroundColor: theme.palette.primary.main,
@@ -43,7 +43,7 @@ function EventPool(props) {
         <div
           className="fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event"
           style={{
-            borderRadius: '0.5rem',
+            borderRadius: theme.shape.borderRadius,
             color: theme.palette.text.light,
             borderColor: theme.palette.primary.main,
             backgroundColor: theme.palette.primary.main,

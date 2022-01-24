@@ -22,12 +22,12 @@ function EventCard() {
             </IconButton>
           </React.Fragment>
         }
-        title="Shrimp and Chorizo Paella"
+        title="事件主題"
         subheader="September 14, 2016"
         titleTypographyProps={{
           noWrap: true,
           variant: 'h6',
-          title: 'Shrimp and Chorizo Paella',
+          title: '事件主題',
         }}
       />
       <Box className="card-content">
